@@ -1,0 +1,5 @@
+# Scripts run on LUMI (Linux) — keep LF so bash never sees a CR in the shebang.
+*.sh    text eol=lf
+*.py    text eol=lf
+*.yaml  text eol=lf
+*.yml   text eol=lf

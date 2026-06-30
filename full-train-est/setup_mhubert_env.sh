@@ -3,7 +3,7 @@
 # Run on a LUMI login node (has internet). Idempotent-ish; safe to re-run.
 set -euo pipefail
 
-B=/scratch/project_465002364/Qomhra/mhubert
+B=/scratch/project_465002364/Qomhra-2/full-train-est/mhubert
 SIF=/scratch/project_465002364/Qomhra/Qomhra_v2.sif
 mkdir -p "$B/models" "$B/cache"
 
@@ -16,7 +16,7 @@ module load lumi-aif-singularity-bindings
 HF_HOME="$B/cache" singularity exec -B /scratch/project_465002364 "$SIF" python3 - <<'PY'
 import os
 from huggingface_hub import snapshot_download, hf_hub_download
-B="/scratch/project_465002364/Qomhra/mhubert"
+B="/scratch/project_465002364/Qomhra-2/full-train-est/mhubert"
 snapshot_download("utter-project/mHuBERT-147-base-2nd-iter",
                   local_dir=f"{B}/models/mhubert-2nd-iter")
 hf_hub_download("utter-project/mHuBERT-147", "mhubert147_faiss.index",

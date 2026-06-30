@@ -1,0 +1,101 @@
+{
+  "model": "/scratch/project_465002364/Qomhra/full-train-est/hf_cache/hub/models--Qwen--Qwen3-8B/snapshots/b968826d9c46dd6066d109eabc6255188de91218/",
+  "word_def": "whitespace split (str.split())",
+  "token_def": "Qwen3-8B ids, add_special_tokens=False",
+  "accept_p": 0.006939516923876106,
+  "budget": 3000000,
+  "seed": 1234,
+  "elapsed_sec": 38.6,
+  "total_corpus_words": 890675109,
+  "sample_words": 7026387,
+  "sample_tokens": 16636612,
+  "pooled_tokens_per_word": 2.3677335165284803,
+  "pooled_words_per_token": 0.4223448259777893,
+  "est_total_tokens": 2125142620.8547814,
+  "per_source": {
+    "conversations_ga": {
+      "file_bytes": 250845127,
+      "total_words": 91515834,
+      "total_chars": 476847540,
+      "total_rows": 19267,
+      "sample_words": 752449,
+      "sample_tokens": 1505461,
+      "sample_rows": 145,
+      "tokens_per_word": 2.000748223467637,
+      "words_per_token": 0.49981301408671497,
+      "est_source_tokens": 183100142.29465917
+    },
+    "corpas_full_clean": {
+      "file_bytes": 359565447,
+      "total_words": 101764312,
+      "total_chars": 580408746,
+      "total_rows": 4925026,
+      "sample_words": 699780,
+      "sample_tokens": 1661577,
+      "sample_rows": 34061,
+      "tokens_per_word": 2.374427677269999,
+      "words_per_token": 0.4211541204530395,
+      "est_source_tokens": 241631998.9711395
+    },
+    "finepdfs": {
+      "file_bytes": 506840972,
+      "total_words": 157390996,
+      "total_chars": 968240195,
+      "total_rows": 33087,
+      "sample_words": 1326407,
+      "sample_tokens": 3458935,
+      "sample_rows": 230,
+      "tokens_per_word": 2.6077478481340948,
+      "words_per_token": 0.38347265849170337,
+      "est_source_tokens": 410436031.13468194
+    },
+    "hplt3_mono": {
+      "file_bytes": 1772356955,
+      "total_words": 497309731,
+      "total_chars": 2963759829,
+      "total_rows": 786690,
+      "sample_words": 3475673,
+      "sample_tokens": 8383969,
+      "sample_rows": 5489,
+      "tokens_per_word": 2.412185783875526,
+      "words_per_token": 0.41456176662866956,
+      "est_source_tokens": 1199603463.301162
+    },
+    "nce": {
+      "file_bytes": 108662087,
+      "total_words": 34471908,
+      "total_chars": 174456497,
+      "total_rows": 1776221,
+      "sample_words": 237357,
+      "sample_tokens": 490077,
+      "sample_rows": 12378,
+      "tokens_per_word": 2.0647252872255715,
+      "words_per_token": 0.4843259324555121,
+      "est_source_tokens": 71175020.14651348
+    },
+    "oireachtas_ga": {
+      "file_bytes": 746968,
+      "total_words": 477517,
+      "total_chars": 3103494,
+      "total_rows": 200,
+      "sample_words": 477517,
+      "sample_tokens": 1002212,
+      "sample_rows": 200,
+      "tokens_per_word": 2.0987985768045956,
+      "words_per_token": 0.4764630637030888,
+      "est_source_tokens": 1002212.0000000001
+    },
+    "uni-archives": {
+      "file_bytes": 27129686,
+      "total_words": 7744811,
+      "total_chars": 46180632,
+      "total_rows": 96113,
+      "sample_words": 57204,
+      "sample_tokens": 134381,
+      "sample_rows": 682,
+      "tokens_per_word": 2.349153905321306,
+      "words_per_token": 0.4256851787082995,
+      "est_source_tokens": 18193753.00662541
+    }
+  }
+}

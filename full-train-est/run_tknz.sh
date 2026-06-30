@@ -11,7 +11,8 @@
 
 set -euo pipefail
 
-B=/scratch/project_465002364/Qomhra/mhubert
+ROOT=/scratch/project_465002364/Qomhra-2/full-train-est
+B=${ROOT}/mhubert
 SIF=/scratch/project_465002364/Qomhra/Qomhra_v2.sif
 AUDIO=/scratch/project_465002364/audio/unlabelled_subset_10h
 
@@ -27,7 +28,7 @@ export SINGULARITYENV_PREPEND_PATH=/user-software/bin
 srun singularity exec \
     -B /scratch/project_465002364 \
     -B "$B/mhubert-env.sqsh:/user-software:image-src=/" \
-    "$SIF" python "$B/audio-tknz.py" \
+    "$SIF" python "$ROOT/audio-tknz.py" \
         --manifest    "$AUDIO/manifest.tsv" \
         --audio-root  "$AUDIO" \
         --model-dir   "$B/models/mhubert-2nd-iter" \

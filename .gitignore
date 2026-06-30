@@ -1,0 +1,35 @@
+# Qomhra-2 — keep code + small reports in git; never the heavy LUMI-generated data.
+# (Big artifacts live on LUMI scratch under /scratch/project_465002364/Qomhra-2/.)
+
+# Generated token / unit data
+tokens/
+units/
+mhubert/models/
+mhubert/cache/
+mhubert/units/
+mhubert/mHuBERT-147-scripts/
+
+# Model / HF caches
+hf_cache/
+cache/
+**/hf_cache/
+
+# Job outputs & logs
+output/
+outputs/
+*.log
+slurm-*.out
+
+# Packed envs / containers / large binaries
+*.sqsh
+*.sif
+*.bin
+qomhra-venv/
+
+# Secrets
+.wandb_key
+
+# Python
+__pycache__/
+*.pyc
+wandb/

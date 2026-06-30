@@ -10,7 +10,7 @@ set -euo pipefail
 
 SIF=${1:?Usage: bash setup_env.sh /path/to/container.sif}
 
-TRAIN_DIR=/scratch/project_465002364/Qomhra/full-train-est/train
+TRAIN_DIR=/scratch/project_465002364/Qomhra-2/full-train-est/train
 VENV_DIR=${TRAIN_DIR}/qomhra-venv
 SQSH=${TRAIN_DIR}/qomhra-env.sqsh
 BIND="-B /scratch/project_465002364:/scratch/project_465002364"

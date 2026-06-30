@@ -28,17 +28,17 @@ train.sh                SLURM launcher: 1 node / 8 GCD, RCCL env, CPU binds, RAN
 ```
 
 ## Run on LUMI
-Assumes the repo is at `/scratch/project_465002364/Qomhra/full-train-est` and the
-container at `/scratch/project_465002364/Qomhra/Qomhra_v2.sif`.
+Assumes the repo is at `/scratch/project_465002364/Qomhra-2/full-train-est` and the
+shared container at `/scratch/project_465002364/Qomhra/Qomhra_v2.sif`.
 
 ```bash
-cd /scratch/project_465002364/Qomhra/full-train-est/train
+cd /scratch/project_465002364/Qomhra-2/full-train-est/train
 
 # 1. one-off: build the package overlay (only hydra-core + pynvml are net-new)
 bash setup_env.sh /scratch/project_465002364/Qomhra/Qomhra_v2.sif
 
 # 2. one-off: provide the W&B key (gitignored)
-echo 'YOUR_WANDB_KEY' > /scratch/project_465002364/Qomhra/.wandb_key && chmod 600 $_
+echo 'YOUR_WANDB_KEY' > /scratch/project_465002364/Qomhra-2/.wandb_key && chmod 600 $_
 
 # 3. smoke test (short, with profiler) — confirm FSDP init, 8-GCD RCCL, no OOM,
 #    wandb run appears, trace written. Best on an interactive node or debug queue.

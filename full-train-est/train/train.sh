@@ -15,10 +15,11 @@ set -euo pipefail
 # / nanoT5 train_denorm.sh). Matches the LUMI-AI-Guide single-node-srun masks.
 CPU_BIND="mask_cpu:0xfe000000000000,0xfe00000000000000,0xfe0000,0xfe000000,0xfe,0xfe00,0xfe00000000,0xfe0000000000"
 
-PROJECT_ROOT=/scratch/project_465002364/Qomhra
-TRAIN_DIR=${PROJECT_ROOT}/full-train-est/train
+REPO_ROOT=/scratch/project_465002364/Qomhra-2          # Qomhra-2 git repo (this project)
+CONTAINER_ROOT=/scratch/project_465002364/Qomhra       # shared container/envs from Qomhra
+TRAIN_DIR=${REPO_ROOT}/full-train-est/train
 OUTPUT_DIR=${TRAIN_DIR}/output
-SIF=${PROJECT_ROOT}/Qomhra_v2.sif
+SIF=${CONTAINER_ROOT}/Qomhra_v2.sif
 SQSH=${TRAIN_DIR}/qomhra-env.sqsh
 export HF_HOME=${TRAIN_DIR}/hf_cache
 export MPICH_GPU_SUPPORT_ENABLED=1
@@ -28,12 +29,12 @@ export NCCL_SOCKET_IFNAME=hsn0,hsn1,hsn2,hsn3
 export NCCL_NET_GDR_LEVEL=PHB
 
 # wandb key is NOT in git. Provide it on LUMI:
-#   echo 'YOUR_KEY' > ${PROJECT_ROOT}/.wandb_key && chmod 600 $_
+#   echo 'YOUR_KEY' > ${REPO_ROOT}/.wandb_key && chmod 600 $_
 # or export WANDB_API_KEY before sbatch. The file (gitignored) takes precedence.
-if [[ -f "${PROJECT_ROOT}/.wandb_key" ]]; then
-    WANDB_API_KEY=$(<"${PROJECT_ROOT}/.wandb_key")
+if [[ -f "${REPO_ROOT}/.wandb_key" ]]; then
+    WANDB_API_KEY=$(<"${REPO_ROOT}/.wandb_key")
 fi
-: "${WANDB_API_KEY:?Set WANDB_API_KEY or create ${PROJECT_ROOT}/.wandb_key (chmod 600)}"
+: "${WANDB_API_KEY:?Set WANDB_API_KEY or create ${REPO_ROOT}/.wandb_key (chmod 600)}"
 export WANDB_API_KEY
 
 module use /appl/local/containers/ai-modules
