@@ -37,12 +37,19 @@ def build_fsdp_plugin(args):
         "full_shard": ShardingStrategy.FULL_SHARD,
         "hybrid_shard": ShardingStrategy.HYBRID_SHARD,
     }[args.get("fsdp", {}).get("sharding_strategy", "full_shard")]
+    # fp32 grad reduction is the safe default; bf16 halves the inter-node
+    # all-reduce volume (attacks the ~23% exposed-comms bucket) at a small
+    # numerical-stability cost. Config-gated A/B.
+    reduce_dtype = {
+        "fp32": torch.float32,
+        "bf16": torch.bfloat16,
+    }[args.get("fsdp", {}).get("reduce_dtype", "fp32")]
     return FullyShardedDataParallelPlugin(
         sharding_strategy=strategy,
         auto_wrap_policy=auto_wrap,
         mixed_precision_policy=MixedPrecision(
             param_dtype=torch.bfloat16,
-            reduce_dtype=torch.float32,   # fp32 grad reduction for stability
+            reduce_dtype=reduce_dtype,
             buffer_dtype=torch.bfloat16,
         ),
         backward_prefetch=BackwardPrefetch.BACKWARD_PRE,
@@ -89,6 +96,11 @@ def main(args):
     model, optimizer, dataloader, lr_scheduler = accelerator.prepare(
         model, optimizer, dataloader, lr_scheduler
     )
+
+    # torch.compile AFTER the FSDP wrap (compiles each FSDP unit's forward; the
+    # recommended order for FSDP1). Config-gated A/B — can be fragile on ROCm.
+    if args.model.get("compile", False):
+        model = torch.compile(model)
 
     global_batch = (
         args.data.micro_batch_size * accelerator.num_processes * args.optim.grad_acc

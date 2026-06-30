@@ -30,6 +30,20 @@ def get_model(args):
     m = args.model
     vocab = combined_vocab_size(m)
 
+    # Liger fused kernels (config-gated). Patches the Qwen3 module classes BEFORE
+    # instantiation: fused RMSNorm/RoPE/SwiGLU kill most of the elementwise bucket,
+    # and fused_linear_cross_entropy never materialises the 152,960-vocab logits
+    # (frees ~10 GB -> bigger micro-batch, and folds the LM-head+CE into one kernel).
+    if m.get("use_liger", False):
+        from liger_kernel.transformers import apply_liger_kernel_to_qwen3
+        apply_liger_kernel_to_qwen3(
+            rope=True,
+            rms_norm=True,
+            swiglu=True,
+            fused_linear_cross_entropy=True,
+            cross_entropy=False,  # mutually exclusive with the fused linear CE
+        )
+
     config = Qwen3Config(
         vocab_size=vocab,
         hidden_size=m.hidden_size,
