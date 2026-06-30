@@ -1,0 +1,58 @@
+# Qomhra training-time estimate — default config.
+# Quick first number: random-init Qwen3-8B on synthetic random tokens, 8-GCD FSDP.
+seed: 2137
+precision: bf16            # accelerate mixed precision (FSDP param dtype = bf16)
+
+model:
+  # Qwen3-8B architecture (explicit so the run is fully offline — no config download).
+  hidden_size: 4096
+  intermediate_size: 12288
+  num_hidden_layers: 36
+  num_attention_heads: 32
+  num_key_value_heads: 8
+  head_dim: 128
+  max_position_embeddings: 40960
+  rms_norm_eps: 1.0e-6
+  rope_theta: 1000000.0
+  tie_word_embeddings: false
+  attn_implementation: sdpa        # ROCm-safe; flash-attn optional later
+  gradient_checkpointing: true
+  # Combined vocab: Qwen3 text + mHuBERT audio units + a few specials, padded.
+  text_vocab: 151936               # Qwen3-8B native vocab
+  audio_vocab: 1000                # mHuBERT-147 units [0, 1000)
+  num_special: 8                   # audio-BOS/EOS, modality-switch, headroom
+  pad_vocab_to_multiple_of: 128
+
+data:
+  seq_len: 4096
+  micro_batch_size: 1              # per-GCD; raise if memory allows
+
+optim:
+  lr: 3.0e-4
+  betas: [0.9, 0.95]
+  weight_decay: 0.1
+  grad_clip: 1.0
+  grad_acc: 8                      # global batch = micro_bs * world_size * grad_acc
+  total_steps: 400
+  warmup_steps: 20
+  scheduler: cosine
+  final_lr_frac: 0.1
+
+logging:
+  wandb: true
+  wandb_project: qomhra-train-est
+  wandb_run_name: null
+  every_steps: 10
+
+# Optional torch profiler over a short early window of micro-batches (rank 0 only).
+# Writes a chrome trace (*.pt.trace.json) to <run-dir>/profiler for Perfetto.
+#   python -m qomhra.main profile.enabled=true optim.total_steps=30
+profile:
+  enabled: false
+  wait: 5
+  warmup: 3
+  active: 10
+
+hydra:
+  job:
+    chdir: true

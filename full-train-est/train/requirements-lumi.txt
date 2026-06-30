@@ -1,0 +1,5 @@
+# Net-new deps for the LUMI sqsh overlay. The Qomhra_v2.sif container ALREADY
+# provides torch 2.5.1+rocm6.2, transformers, accelerate, wandb — do NOT pip
+# them here (a pip torch would shadow the container's ROCm build).
+hydra-core      # brings omegaconf + antlr4
+pynvml
