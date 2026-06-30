@@ -26,6 +26,14 @@ model:
 data:
   seq_len: 4096
   micro_batch_size: 1              # per-GCD; raise if memory allows
+  source: synthetic                # synthetic (random ids) | real (LUMI tokens)
+  # --- real-data source (already-tokenized files on LUMI; no tokenization here) ---
+  text_bin: /scratch/project_465002364/Qomhra-2/full-train-est/tokens/throughput_100k/sample.bin
+  text_token_budget: null          # null = use the whole text subset
+  sep_id: 151643                   # Qwen3 eod, separates docs in text_bin
+  audio_units_dir: /scratch/project_465002364/Qomhra-2/full-train-est/mhubert/units
+  audio_token_budget: 180000       # ~1 h of audio at 50 Hz mHuBERT (180k tok/h)
+  audio_offset: 151936             # combined-vocab offset for audio units (= text_vocab)
 
 optim:
   lr: 3.0e-4
