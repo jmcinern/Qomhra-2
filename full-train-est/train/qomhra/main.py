@@ -22,7 +22,7 @@ from .model import get_model
 from .train_utils import train
 
 
-def build_fsdp_plugin():
+def build_fsdp_plugin(args):
     # Full-shard (ZeRO-3 equivalent): shard params, grads and optimizer states
     # across the 8 GCDs so the 8B model + Adam states fit in 64 GB/GCD.
     auto_wrap = functools.partial(
@@ -38,6 +38,9 @@ def build_fsdp_plugin():
             buffer_dtype=torch.bfloat16,
         ),
         backward_prefetch=BackwardPrefetch.BACKWARD_PRE,
+        # Overlap next-layer all-gather with current forward (profiler: ~23% of
+        # CUDA time was exposed nccl all-gather).
+        forward_prefetch=bool(args.get("fsdp", {}).get("forward_prefetch", False)),
         limit_all_gathers=True,
         use_orig_params=True,
     )
@@ -49,7 +52,7 @@ def main(args):
 
     accelerator = Accelerator(
         mixed_precision=args.precision,
-        fsdp_plugin=build_fsdp_plugin(),
+        fsdp_plugin=build_fsdp_plugin(args),
         # dispatch_batches=False: each rank iterates its own SyntheticTokenDataset
         # (seeded by RANK) instead of rank 0 loading and scattering — correct for
         # data-parallel timing and avoids a needless scatter on an IterableDataset.

@@ -10,6 +10,29 @@ import time
 import torch
 
 
+def build_sdpa_ctx(args, logger):
+    """Optional context forcing the SDPA backend priority for the forward pass.
+
+    The profiler showed attention running on the math backend (explicit bmm +
+    softmax over seq^2 ≈ 24% of CUDA time). Forcing [flash, efficient] uses the
+    fused kernels instead. Returns a no-arg context-manager factory.
+    """
+    names = args.model.get("sdpa_backends", None)
+    if not names:
+        return contextlib.nullcontext
+    from torch.nn.attention import sdpa_kernel, SDPBackend
+    mapping = {
+        "flash": SDPBackend.FLASH_ATTENTION,
+        "efficient": SDPBackend.EFFICIENT_ATTENTION,
+        "math": SDPBackend.MATH,
+        "cudnn": SDPBackend.CUDNN_ATTENTION,
+    }
+    backends = [mapping[n] for n in names]
+    if os.environ.get("RANK", "0") == "0":
+        logger.log_message(f"[sdpa] forcing backend priority: {list(names)}")
+    return lambda: sdpa_kernel(backends)
+
+
 def make_profiler(args, logger):
     """Optional torch profiler over a small early window of micro-batches.
 
@@ -59,6 +82,7 @@ def train(model, dataloader, accelerator, optimizer, lr_scheduler, logger, args,
     model.train()
 
     tokens_per_step = global_batch * args.data.seq_len
+    sdpa_ctx = build_sdpa_ctx(args, logger)
     profiler = make_profiler(args, logger)
     prof = profiler.__enter__()
     profiling = prof is not None  # nullcontext().__enter__() returns None
@@ -79,7 +103,7 @@ def train(model, dataloader, accelerator, optimizer, lr_scheduler, logger, args,
         # RCCL traffic). nanoT5 profiler showed this was ~40% of CUDA time.
         is_sync = (micro % args.optim.grad_acc == 0)
         sync_ctx = contextlib.nullcontext() if is_sync else accelerator.no_sync(model)
-        with sync_ctx:
+        with sync_ctx, sdpa_ctx():
             loss = model(**batch).loss
             accelerator.backward(loss / args.optim.grad_acc)
         window_loss += loss.detach().float().item() / args.optim.grad_acc

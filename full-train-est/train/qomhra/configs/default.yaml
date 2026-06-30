@@ -16,6 +16,12 @@ model:
   rope_theta: 1000000.0
   tie_word_embeddings: false
   attn_implementation: sdpa        # ROCm-safe; flash-attn optional later
+  # Force SDPA backend priority (excludes the slow math bmm+softmax path). null =
+  # torch default. Profiler showed the math backend (explicit O(seq^2) bmm+softmax)
+  # was being used; [flash, efficient] forces the fused kernels. If the model's 4D
+  # mask makes both ineligible the forward errors — that tells us the mask is the
+  # blocker (then drop to [efficient] or [flash, efficient, math]).
+  sdpa_backends: null              # e.g. [flash, efficient]
   gradient_checkpointing: true
   # Combined vocab: Qwen3 text + mHuBERT audio units + a few specials, padded.
   text_vocab: 151936               # Qwen3-8B native vocab
@@ -45,6 +51,11 @@ optim:
   warmup_steps: 20
   scheduler: cosine
   final_lr_frac: 0.1
+
+fsdp:
+  # Overlap the next layer's param all-gather with the current layer's forward
+  # compute. Profiler showed ~23% of CUDA time in exposed nccl all-gather.
+  forward_prefetch: true
 
 logging:
   wandb: true
