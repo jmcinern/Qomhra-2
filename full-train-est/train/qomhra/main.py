@@ -29,8 +29,16 @@ def build_fsdp_plugin(args):
         transformer_auto_wrap_policy,
         transformer_layer_cls={Qwen3DecoderLayer},
     )
+    # full_shard (ZeRO-3 across all ranks) vs hybrid_shard (shard within a node,
+    # replicate across nodes — keeps per-layer all-gathers on the fast intra-node
+    # fabric and only all-reduces grads across nodes). FSDP1 auto-builds the
+    # intra/inter-node process groups for HYBRID_SHARD from the per-node GPU count.
+    strategy = {
+        "full_shard": ShardingStrategy.FULL_SHARD,
+        "hybrid_shard": ShardingStrategy.HYBRID_SHARD,
+    }[args.get("fsdp", {}).get("sharding_strategy", "full_shard")]
     return FullyShardedDataParallelPlugin(
-        sharding_strategy=ShardingStrategy.FULL_SHARD,
+        sharding_strategy=strategy,
         auto_wrap_policy=auto_wrap,
         mixed_precision_policy=MixedPrecision(
             param_dtype=torch.bfloat16,

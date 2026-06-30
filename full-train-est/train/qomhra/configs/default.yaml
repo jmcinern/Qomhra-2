@@ -56,6 +56,13 @@ fsdp:
   # Overlap the next layer's param all-gather with the current layer's forward
   # compute. Profiler showed ~23% of CUDA time in exposed nccl all-gather.
   forward_prefetch: true
+  # full_shard (ZeRO-3 across ALL ranks) | hybrid_shard (shard within a node over
+  # Infinity Fabric, replicate across nodes). On 8 nodes full_shard all-gathers
+  # every layer across all 64 GCDs over Slingshot (measured 64% scaling eff);
+  # hybrid_shard keeps the per-layer all-gathers node-local and only does one grad
+  # all-reduce/step across nodes. Single node: the two are identical (1 node = 1
+  # shard group). FSDP1 auto-builds the intra/inter-node groups for HYBRID_SHARD.
+  sharding_strategy: full_shard
 
 logging:
   wandb: true
