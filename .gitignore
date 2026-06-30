@@ -1,13 +1,11 @@
 # Qomhra-2 — keep code + small reports in git; never the heavy LUMI-generated data.
 # (Big artifacts live on LUMI scratch under /scratch/project_465002364/Qomhra-2/.)
 
-# Generated token / unit data
+# Generated token / unit / model data (match at any depth, not just repo root)
 tokens/
 units/
-mhubert/models/
-mhubert/cache/
-mhubert/units/
-mhubert/mHuBERT-147-scripts/
+models/
+mHuBERT-147-scripts/
 
 # Model / HF caches
 hf_cache/
