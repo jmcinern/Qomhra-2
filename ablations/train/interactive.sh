@@ -24,7 +24,9 @@ TRAIN_DIR=${REPO_ROOT}/ablations/train
 OUTPUT_DIR=${TRAIN_DIR}/output
 SIF=${CONTAINER_ROOT}/Qomhra_v2.sif
 SQSH=${SQSH:-${REPO_ROOT}/full-train-est/train/qomhra-env.sqsh}
-export HF_HOME=${TRAIN_DIR}/hf_cache
+# Shared repo-level cache — holds the full 12G Omni snapshot. (ablations/train/hf_cache
+# is a tokenizer-only cache with no safetensors; from_pretrained fails against it.)
+export HF_HOME=${REPO_ROOT}/hf_cache
 export MPICH_GPU_SUPPORT_ENABLED=1
 export NCCL_SOCKET_IFNAME=hsn0,hsn1,hsn2,hsn3
 export NCCL_NET_GDR_LEVEL=PHB

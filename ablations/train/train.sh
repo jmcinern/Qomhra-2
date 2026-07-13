@@ -36,7 +36,9 @@ SIF=${CONTAINER_ROOT}/Qomhra_v2.sif
 # The python env squashfs is shared with the full-train-est rig (same container,
 # same deps) — don't duplicate a 2nd copy of it on scratch.
 SQSH=${SQSH:-${REPO_ROOT}/full-train-est/train/qomhra-env.sqsh}
-export HF_HOME=${TRAIN_DIR}/hf_cache
+# Shared repo-level cache — holds the full 12G Omni snapshot. (ablations/train/hf_cache
+# is a tokenizer-only cache with no safetensors; from_pretrained fails against it.)
+export HF_HOME=${REPO_ROOT}/hf_cache
 export MPICH_GPU_SUPPORT_ENABLED=1
 
 # RCCL over the Slingshot-11 interconnect + GPU RDMA (LUMI-AI-Guide 5-multi-gpu).
