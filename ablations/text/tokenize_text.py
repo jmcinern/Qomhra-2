@@ -38,11 +38,12 @@ import numpy as np
 import pyarrow.parquet as pq
 
 DATA_DIR = "/scratch/project_465002364/Denorm/train/data"
-# All Irish text sources (see ablations/DATA_OVERVIEW.md). conversations_ga is the
-# ASR-transcript source; keep it here for a complete text tokenizer, select/exclude
-# it downstream when composing the ablation mix.
+# All Irish text sources (see ablations/DATA_OVERVIEW.md). conversations_capr is the
+# ASR-transcript source, after capitalisation + punctuation restoration (it replaced
+# the raw conversations_ga, now under data/archive/). Keep it here for a complete text
+# tokenizer; select/exclude it downstream when composing the ablation mix.
 FILES = [
-    "conversations_ga",
+    "conversations_capr",
     "corpas_full_clean",
     "finepdfs",
     "hplt3_mono",

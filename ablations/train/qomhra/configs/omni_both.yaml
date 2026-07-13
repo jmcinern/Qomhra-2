@@ -24,7 +24,7 @@ data:
     - ${paths.tokens}/shards/nce__rg*.bin
     - ${paths.tokens}/shards/uni-archives__rg*.bin
     - ${paths.tokens}/shards/oireachtas_ga__rg*.bin
-    - ${paths.tokens}/shards/conversations_ga__rg*.bin
+    - ${paths.tokens}/shards/conversations_capr__rg*.bin
 
 logging:
   wandb_run_name: ablation-text-speech
