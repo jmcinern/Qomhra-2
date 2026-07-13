@@ -32,29 +32,35 @@ import torch.nn.functional as F
 
 
 def _load_thinker(m):
-    """Load Qwen2.5-Omni and return its Thinker (or a plain causal LM).
+    """Load ONLY the Thinker out of the Qwen2.5-Omni checkpoint.
 
-    The Auto* factories don't map the qwen2_5_omni config, so the multimodal path
-    loads via the explicit `model_class` and extracts `backbone_attr`. The Thinker
-    is a *ThinkerForConditionalGeneration exposing `.audio_tower` (encoder+adapter),
-    `.model` (text decoder) and `.lm_head`.
+    We deliberately do not go through Qwen2_5OmniForConditionalGeneration: its
+    `from_pretrained` also builds the Talker + Token2Wav and `torch.load`s the TTS
+    speaker dict, which transformers refuses on the container's torch 2.5 (the
+    CVE-2025-32434 guard demands >= 2.6). None of that is used here — we train the
+    Thinker only. The Thinker class declares `base_model_prefix = "thinker"`, so it
+    maps the checkpoint's `thinker.*` keys itself; we just have to hand it the
+    nested thinker_config rather than the full Omni config.
     """
-    import transformers
-
-    cls_name = m.get("model_class", None)
-    attr = m.get("backbone_attr", None)
-
-    if cls_name:
-        Cls = getattr(transformers, cls_name)
-        full = Cls.from_pretrained(
-            m.base_model_id, attn_implementation=m.attn_implementation
-        )
-        return getattr(full, attr) if attr else full
-
-    from transformers import AutoModelForCausalLM
-    return AutoModelForCausalLM.from_pretrained(
-        m.base_model_id, attn_implementation=m.attn_implementation
+    from transformers import AutoConfig
+    from transformers.models.qwen2_5_omni.modeling_qwen2_5_omni import (
+        Qwen2_5OmniThinkerForConditionalGeneration,
     )
+
+    cfg = AutoConfig.from_pretrained(m.base_model_id)
+    thinker = Qwen2_5OmniThinkerForConditionalGeneration.from_pretrained(
+        m.base_model_id,
+        config=cfg.thinker_config,
+        attn_implementation=m.attn_implementation,
+    )
+
+    # The Thinker also carries a vision tower. These ablations are text+speech only,
+    # so it would never receive input — but under `freeze: all` it would still take
+    # optimizer state and get sharded/all-gathered every step. Drop it (~0.7B params).
+    if getattr(thinker, "visual", None) is not None:
+        thinker.visual = None
+
+    return thinker
 
 
 class OmniThinkerCPT(nn.Module):

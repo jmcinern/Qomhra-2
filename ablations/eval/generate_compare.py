@@ -51,11 +51,19 @@ def generate(thinker, tokenizer, prompts, device, max_new_tokens, temperature):
 
 
 def load_baseline(model_id, device, dtype):
-    from transformers import Qwen2_5OmniForConditionalGeneration
-    full = Qwen2_5OmniForConditionalGeneration.from_pretrained(
-        model_id, torch_dtype=dtype, attn_implementation="sdpa"
+    """Stock Thinker. Loaded directly (not via Qwen2_5OmniForConditionalGeneration),
+    which would also build the Talker and torch.load the TTS speaker dict — refused
+    on the container's torch 2.5. See qomhra/model.py::_load_thinker."""
+    from transformers import AutoConfig
+    from transformers.models.qwen2_5_omni.modeling_qwen2_5_omni import (
+        Qwen2_5OmniThinkerForConditionalGeneration,
     )
-    return full.thinker.to(device).eval()
+    cfg = AutoConfig.from_pretrained(model_id)
+    thinker = Qwen2_5OmniThinkerForConditionalGeneration.from_pretrained(
+        model_id, config=cfg.thinker_config, torch_dtype=dtype,
+        attn_implementation="sdpa",
+    )
+    return thinker.to(device).eval()
 
 
 def main():

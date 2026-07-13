@@ -25,9 +25,9 @@ freeze:
   mode: all                        # all | llm_only (Text ablation freezes the audio tower)
 
 model:
+  # Only the Thinker is loaded out of this checkpoint (see model.py::_load_thinker);
+  # the Talker and Token2Wav are never built.
   base_model_id: Qwen/Qwen2.5-Omni-3B
-  model_class: Qwen2_5OmniForConditionalGeneration
-  backbone_attr: thinker
   attn_implementation: sdpa        # ROCm-safe; flash-attn absent in the container
   sdpa_backends: null
   gradient_checkpointing: true
