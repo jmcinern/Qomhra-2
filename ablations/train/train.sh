@@ -86,9 +86,7 @@ exec singularity exec \
     --env NCCL_SOCKET_IFNAME="${NCCL_SOCKET_IFNAME}" \
     --env NCCL_NET_GDR_LEVEL="${NCCL_NET_GDR_LEVEL}" \
     "${SIF}" \
-    python -m qomhra.main \
-        hydra.run.dir="${HYDRA_RUN_DIR}" \
-        "$@"
+    python -m qomhra.main "$@" hydra.run.dir="${HYDRA_RUN_DIR}"
 WRAP
 chmod +x "${RANK_WRAPPER}"
 export SQSH HF_HOME WANDB_API_KEY SIF MASTER_ADDR MASTER_PORT TRAIN_DIR \
