@@ -1,0 +1,23 @@
+# Fixed prompts for the before/after qualitative check (Irish + English).
+# Blank lines and #-comments are ignored. Kept deliberately short and open-ended:
+# we are looking at whether continued pretraining shifted the model's Irish fluency
+# and register, not at instruction-following (this is a base-model NTP check).
+
+# --- Irish (Gaeilge) ---
+Is é an fáth a bhfuil an Ghaeilge tábhachtach ná
+Bhí an aimsir go hálainn inné, mar sin chuaigh mé
+Tá Baile Átha Cliath ar cheann de na cathracha is
+Nuair a bhí mé óg, chaith mé an samhradh i gConamara ag
+An rud is mó a thaitníonn liom faoin gceol traidisiúnta ná
+Dúirt an tAire go bhfuil an Rialtas chun
+Seo é an nuacht. Tá tuairisc nua foilsithe ag
+Ar maidin, shiúil sí síos an bóthar go dtí an siopa agus
+
+# --- English ---
+The Irish language is spoken today mainly in
+Dublin is the capital of Ireland, and its main
+The most important thing about learning a new language is
+Yesterday the government announced that it would
+
+# --- Code-switching (Irish/English), which the ASR-transcript data contains ---
+Bhí mé ag caint le my friend from Galway agus dúirt sé

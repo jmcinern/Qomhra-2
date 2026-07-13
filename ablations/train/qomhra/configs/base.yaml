@@ -1,0 +1,96 @@
+# Shared config for the ablation CPT runs. The three ablation configs
+# (omni_text / omni_speech / omni_both) compose this via `defaults` and set the
+# task/freeze/data blocks. See ../../README.md for the ablation definitions.
+seed: 2137
+precision: bf16                     # FSDP param dtype = bf16 mixed precision
+
+# Data roots, in one place so a smoke run can swap them with a single override:
+#   ... paths.tokens=.../tokens_subset paths.audio=/scratch/.../unlabelled_subset_10h
+paths:
+  # Omni-tokenized text. NOT full-train-est/tokens — those are Qwen3-tokenized, a
+  # different vocab, and the ids would index the wrong embedding rows.
+  tokens: /scratch/project_465002364/Qomhra-2/ablations/text/tokens_full
+  audio: /scratch/project_465002364/audio/unlabelled_full
+
+task:
+  modality: text                   # text | speech | both
+  # Speech objective: predict the next audio-encoder frame embedding.
+  audio_loss: cosine               # cosine (1 - cos sim) | l2
+  audio_head_dim: null             # null -> thinker hidden size (2048)
+  target_detach: detach            # detach | ema  (stop-grad on the regression target)
+  ema_decay: 0.999                 # only used when target_detach: ema
+  text_step_frac: 0.5              # 'both': fraction of global steps that are text
+
+freeze:
+  mode: all                        # all | llm_only (Text ablation freezes the audio tower)
+
+model:
+  base_model_id: Qwen/Qwen2.5-Omni-3B
+  model_class: Qwen2_5OmniForConditionalGeneration
+  backbone_attr: thinker
+  attn_implementation: sdpa        # ROCm-safe; flash-attn absent in the container
+  sdpa_backends: null
+  gradient_checkpointing: true
+  compile: false                   # torch.compile after FSDP wrap (was +66% in the rig)
+
+data:
+  source: real                     # real (text) | audio | mixed | synthetic
+  sep_id: 151643                   # Qwen2.5 <|endoftext|>
+  # --- text ---
+  # Omni-tokenized shards (NOT full-train-est/tokens — those are Qwen3-tokenized,
+  # a different vocab; see ablations/text/tokenize_text.py).
+  seq_len: 4096
+  micro_batch_size: 1
+  text_bin: ${paths.tokens}/shards/*.bin   # per-source globs in the ablation configs
+  text_token_budget: 200000000     # ~200M tok; a 400-step 2-node run consumes ~210M
+  # --- audio ---
+  audio_manifest: ${paths.audio}/manifest.tsv
+  audio_root: ${paths.audio}
+  audio_chunk_s: 30                # ~750 frames @ 25 Hz
+  audio_micro_batch_size: 2
+  audio_workers: 4                 # mel extraction is CPU-bound; 7 cores/rank available
+
+optim:
+  lr: 3.0e-5                       # CPT of a pretrained model — 10x below from-scratch
+  betas: [0.9, 0.95]
+  weight_decay: 0.1
+  grad_clip: 1.0
+  grad_acc: 8
+  total_steps: 400
+  warmup_steps: 20
+  scheduler: cosine
+  final_lr_frac: 0.1
+
+fsdp:
+  forward_prefetch: true
+  # Multi-node defaults: hybrid_shard replicates across nodes and shards within one,
+  # and bf16 grad-reduce halves the Slingshot all-reduce. On 1 node hybrid_shard is
+  # equivalent to full_shard.
+  sharding_strategy: hybrid_shard
+  reduce_dtype: bf16
+  # The thinker's _no_split_modules names the ENCODERS, not the text decoder, so we
+  # name the wrap targets explicitly. The audio-encoder block is included so it also
+  # shards in the speech ablations (where it is trained).
+  transformer_layer_cls: [Qwen2_5OmniDecoderLayer, Qwen2_5OmniAudioEncoderLayer]
+
+checkpoint:
+  every_steps: 100
+  save_final: true
+  keep_last: 2
+  dir: null                        # null -> <hydra run dir>/checkpoints
+
+logging:
+  wandb: true
+  wandb_project: qomhra-ablations
+  wandb_run_name: null
+  every_steps: 10
+
+profile:
+  enabled: false
+  wait: 5
+  warmup: 3
+  active: 10
+
+hydra:
+  job:
+    chdir: true

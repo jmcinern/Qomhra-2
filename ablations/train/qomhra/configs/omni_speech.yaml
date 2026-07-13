@@ -1,0 +1,24 @@
+# Ablation 2 — "Just Speech": audio only, train everything.
+#
+# Speech goes through Omni's native audio path (mel -> audio_tower -> 2048-d @ 25 Hz),
+# and the objective is next-audio-frame regression against the *detached* encoder
+# output (see model.py). The whole stack trains: audio encoder + adapter + LLM +
+# lm_head + the regression head.
+defaults:
+  - base
+  - _self_
+
+task:
+  modality: speech
+  audio_loss: cosine
+  target_detach: detach   # switch to `ema` if the encoder collapses (target var -> 0)
+
+freeze:
+  mode: all
+
+data:
+  source: audio
+  audio_micro_batch_size: 2
+
+logging:
+  wandb_run_name: ablation-speech

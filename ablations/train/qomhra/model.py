@@ -1,0 +1,256 @@
+"""Model construction for the ablation CPT runs.
+
+We continued-pretrain **Qwen2.5-Omni-3B's Thinker** (no Talker — that is
+post-finetuning scope). Two modalities, one backbone:
+
+  text   ids --embed_tokens--> decoder --lm_head--> shifted CE          (NTP on text)
+  audio  wav --mel--> audio_tower --> 25 Hz x 2048-d embeddings
+                 --(as inputs_embeds)--> decoder --audio_head--> next-frame
+                 regression against the *detached* encoder embeddings   (NTP on audio hidden)
+
+Speech goes through Omni's **native audio path**, not mHuBERT discrete units, so
+the encoder + adapter are exercised and trained. The audio tower's output width
+(2048) equals the thinker's hidden size, so its embeddings drop straight into the
+decoder's input slots — one audio frame occupies one context slot, exactly like a
+text token.
+
+The audio target is the next frame's encoder embedding with a **stop-grad**. The
+encoder is trainable in the speech/both ablations, so without the detach the
+model could minimise the loss by collapsing the encoder's output distribution
+rather than by predicting anything. `target_detach: ema` swaps in a frozen EMA
+copy of the encoder for the targets if plain detach still drifts.
+
+No vocab resize: the Qwen2.5 tokenizer's native ids are used as-is (the old
+shared-vocab mHuBERT scheme grew the embedding table; the native audio path does
+not need any new rows).
+"""
+import copy
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+
+def _load_thinker(m):
+    """Load Qwen2.5-Omni and return its Thinker (or a plain causal LM).
+
+    The Auto* factories don't map the qwen2_5_omni config, so the multimodal path
+    loads via the explicit `model_class` and extracts `backbone_attr`. The Thinker
+    is a *ThinkerForConditionalGeneration exposing `.audio_tower` (encoder+adapter),
+    `.model` (text decoder) and `.lm_head`.
+    """
+    import transformers
+
+    cls_name = m.get("model_class", None)
+    attr = m.get("backbone_attr", None)
+
+    if cls_name:
+        Cls = getattr(transformers, cls_name)
+        full = Cls.from_pretrained(
+            m.base_model_id, attn_implementation=m.attn_implementation
+        )
+        return getattr(full, attr) if attr else full
+
+    from transformers import AutoModelForCausalLM
+    return AutoModelForCausalLM.from_pretrained(
+        m.base_model_id, attn_implementation=m.attn_implementation
+    )
+
+
+class OmniThinkerCPT(nn.Module):
+    """Thinker + a next-audio-frame regression head, with a modality-branching forward.
+
+    The batch decides the branch: an `input_features` key means an audio batch, an
+    `input_ids` key means a text batch. (No string "modality" field — those collate
+    into lists and would have to be unpacked on every step.) Under FSDP all ranks
+    must take the *same* branch on a given step; the mixed-modality schedule in
+    data.py guarantees that.
+    """
+
+    def __init__(self, thinker, task_cfg):
+        super().__init__()
+        self.thinker = thinker
+        self.audio_loss = task_cfg.get("audio_loss", "cosine")
+        self.target_detach = task_cfg.get("target_detach", "detach")
+
+        # Read the width off the embedding table rather than a nested config attr —
+        # the thinker's config nests hidden_size under text_config.
+        hidden = thinker.get_input_embeddings().weight.shape[1]
+        head_dim = int(task_cfg.get("audio_head_dim", None) or hidden)
+        self.audio_head = nn.Linear(hidden, head_dim)
+
+        # EMA target encoder: a frozen copy whose weights track the live encoder.
+        # Only built when asked for — it costs a second copy of the audio tower.
+        self.ema_decay = float(task_cfg.get("ema_decay", 0.999))
+        if self.target_detach == "ema":
+            self.target_tower = copy.deepcopy(thinker.audio_tower)
+            for p in self.target_tower.parameters():
+                p.requires_grad_(False)
+        else:
+            self.target_tower = None
+
+    # -- audio encoder ---------------------------------------------------------
+    def _encode_audio(self, tower, input_features, feature_lens):
+        """Run the audio tower over a padded mel batch -> (B, F, D) + valid-frame mask.
+
+        The tower wants the batch *packed*: valid mel frames concatenated along time
+        into (n_mel, sum_T), with the per-item lengths passed alongside. Its output is
+        likewise packed (sum_F, D), so we re-split it into a padded (B, F, D). This
+        mirrors `speech/speech-tknz.py::encode`, but with grad enabled.
+        """
+        # The dataloader hands us fp32 mel; under FSDP mixed precision the tower's
+        # weights are bf16, and the first conv will not cast for us.
+        input_features = input_features.to(dtype=next(tower.parameters()).dtype)
+
+        lens = feature_lens.tolist()
+        packed = torch.cat(
+            [input_features[i, :, : lens[i]] for i in range(input_features.shape[0])],
+            dim=1,
+        )
+
+        out_lengths = tower._get_feat_extract_output_lengths(feature_lens)
+        if isinstance(out_lengths, (tuple, list)):
+            aftercnn_lens, out_lens = out_lengths
+        else:
+            aftercnn_lens, out_lens = feature_lens, out_lengths
+
+        out = tower(packed, feature_lens=feature_lens, aftercnn_lens=aftercnn_lens)
+        hidden = out.last_hidden_state if hasattr(out, "last_hidden_state") else out[0]
+
+        # packed (sum_F, D) -> padded (B, F, D)
+        sizes = out_lens.tolist()
+        chunks = torch.split(hidden, sizes, dim=0)
+        embeds = torch.nn.utils.rnn.pad_sequence(chunks, batch_first=True)
+        max_f = embeds.shape[1]
+        frame_mask = (
+            torch.arange(max_f, device=embeds.device)[None, :]
+            < out_lens.to(embeds.device)[:, None]
+        )
+        return embeds, frame_mask
+
+    def _forward_audio(self, input_features, feature_lens):
+        embeds, frame_mask = self._encode_audio(
+            self.thinker.audio_tower, input_features, feature_lens
+        )
+
+        hidden = self.thinker.model(
+            inputs_embeds=embeds,
+            attention_mask=frame_mask.long(),
+            use_cache=False,
+        ).last_hidden_state
+        pred = self.audio_head(hidden)[:, :-1]           # predict frame t+1 from t
+
+        if self.target_tower is not None:
+            with torch.no_grad():
+                target_all, _ = self._encode_audio(
+                    self.target_tower, input_features, feature_lens
+                )
+        else:
+            target_all = embeds
+        target = target_all[:, 1:].detach()               # stop-grad: see module docstring
+
+        # A position is a valid training target only if both it and its successor are
+        # real frames — this drops padding AND the final real frame (no successor).
+        valid = frame_mask[:, :-1] & frame_mask[:, 1:]
+        if valid.sum() == 0:
+            raise RuntimeError("audio batch has no frame with a successor; "
+                               "clips are too short for next-frame prediction")
+
+        pred, target = pred[valid], target[valid]
+        if self.audio_loss == "cosine":
+            loss = (1.0 - F.cosine_similarity(pred.float(), target.float(), dim=-1)).mean()
+        else:
+            loss = F.mse_loss(pred.float(), target.float())
+
+        return {
+            "loss": loss,
+            "loss_audio": loss.detach(),
+            # Collapse canary: if the encoder degenerates to a constant, the targets
+            # lose variance and the loss goes to zero for the wrong reason.
+            "audio_target_var": target.float().var(dim=0).mean().detach(),
+            "n_audio_frames": int(valid.sum()),
+        }
+
+    def _forward_text(self, input_ids, labels=None, **_):
+        hidden = self.thinker.model(
+            input_ids=input_ids, use_cache=False
+        ).last_hidden_state
+        logits = self.thinker.lm_head(hidden)
+        if labels is None:
+            labels = input_ids
+        loss = F.cross_entropy(
+            logits[:, :-1].reshape(-1, logits.shape[-1]).float(),
+            labels[:, 1:].reshape(-1),
+        )
+        return {
+            "loss": loss,
+            "loss_text": loss.detach(),
+            "n_text_tokens": int(labels[:, 1:].numel()),
+        }
+
+    def forward(self, **batch):
+        if "input_features" in batch:
+            return self._forward_audio(batch["input_features"], batch["feature_lens"])
+        return self._forward_text(**batch)
+
+    @torch.no_grad()
+    def update_ema(self):
+        """Track the live encoder with the frozen target copy (no-op unless ema)."""
+        if self.target_tower is None:
+            return
+        for tgt, src in zip(self.target_tower.parameters(),
+                            self.thinker.audio_tower.parameters()):
+            tgt.lerp_(src.detach(), 1.0 - self.ema_decay)
+
+
+def apply_freezing(model, args):
+    """Set requires_grad per the ablation's `freeze.mode`; return a short summary.
+
+    `llm_only` (the Text ablation, per ablations/README): train the LLM decoder,
+    lm_head and embeddings; freeze the audio tower.
+    `all` (Speech and Text+Speech): everything trains.
+
+    Must be identical on every rank — a divergent frozen-param set breaks FSDP's
+    all-gathers.
+    """
+    mode = args.get("freeze", {}).get("mode", "all")
+    if mode == "all":
+        for p in model.parameters():
+            p.requires_grad_(True)
+    elif mode == "llm_only":
+        for p in model.parameters():
+            p.requires_grad_(False)
+        for p in model.thinker.model.parameters():
+            p.requires_grad_(True)
+        for p in model.thinker.lm_head.parameters():
+            p.requires_grad_(True)
+        model.thinker.get_input_embeddings().weight.requires_grad_(True)
+    else:
+        raise ValueError(f"unknown freeze.mode: {mode!r} (expected all | llm_only)")
+
+    # The EMA target tower is never trained, whatever the mode.
+    if getattr(model, "target_tower", None) is not None:
+        for p in model.target_tower.parameters():
+            p.requires_grad_(False)
+
+    trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    total = sum(p.numel() for p in model.parameters())
+    return f"[freeze] mode={mode}: {trainable/1e9:.2f}B / {total/1e9:.2f}B params trainable"
+
+
+def get_model(args):
+    m = args.model
+    task = args.get("task", {})
+
+    thinker = _load_thinker(m)
+    thinker.config.use_cache = False
+
+    model = OmniThinkerCPT(thinker, task)
+
+    if m.gradient_checkpointing:
+        thinker.gradient_checkpointing_enable(
+            gradient_checkpointing_kwargs={"use_reentrant": False}
+        )
+
+    vocab = thinker.get_input_embeddings().weight.shape[0]
+    return model, vocab
