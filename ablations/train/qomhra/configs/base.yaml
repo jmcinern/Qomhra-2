@@ -74,7 +74,7 @@ fsdp:
   transformer_layer_cls: [Qwen2_5OmniDecoderLayer, Qwen2_5OmniAudioEncoderLayer]
 
 checkpoint:
-  every_steps: 100
+  every_steps: 20                  # early signal: first before/after eval at step 20
   save_final: true
   keep_last: 2
   dir: null                        # null -> <hydra run dir>/checkpoints
