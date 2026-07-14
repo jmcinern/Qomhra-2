@@ -11,7 +11,17 @@ defaults:
 task:
   modality: speech
   audio_loss: cosine
-  target_detach: detach   # switch to `ema` if the encoder collapses (target var -> 0)
+  # `detach` COLLAPSES: measured over 40 steps, the encoder drives its own output
+  # variance 0.43 -> 0.048 and the loss follows it to 0.09 — it is flattening the
+  # targets until they are trivially predictable, not learning to predict. A stop-grad
+  # on the target alone cannot prevent this, because the encoder still sits upstream
+  # of the prediction. Against a separate target encoder the variance holds flat
+  # (0.43 -> 0.46) while the loss falls 1.00 -> 0.56 — the objective doing real work.
+  #
+  # `frozen` (the pretrained tower, never updated) rather than `ema`: it cannot collapse
+  # by construction, and it avoids all-gathering the sharded live tower every step. At
+  # ema_decay=0.999 the two are near-identical over a few hundred steps anyway.
+  target_detach: frozen
 
 freeze:
   mode: all

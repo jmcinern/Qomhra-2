@@ -131,10 +131,17 @@ def main(args):
         betas=tuple(args.optim.betas),
         weight_decay=args.optim.weight_decay,
     )
+    # accelerator.prepare() wraps this in an AcceleratedScheduler, which advances the
+    # underlying schedule once PER PROCESS on every .step() — the convention being that
+    # step() is called per batch. We call it once per *optimizer* step, so on 8 GCDs it
+    # consumed 8 scheduler steps each time and lapped the cosine curve repeatedly (the
+    # logged lr jumped 1.5e-5 -> 3.8e-7 -> 2.2e-5 -> 2.7e-5 between steps instead of
+    # decaying). Scaling the horizon by the world size cancels the multiplier exactly.
+    world = max(accelerator.num_processes, 1)
     lr_scheduler = get_cosine_schedule_with_warmup(
         optimizer,
-        num_warmup_steps=args.optim.warmup_steps,
-        num_training_steps=args.optim.total_steps,
+        num_warmup_steps=args.optim.warmup_steps * world,
+        num_training_steps=args.optim.total_steps * world,
     )
 
     prepared = accelerator.prepare(

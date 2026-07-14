@@ -24,6 +24,7 @@ No vocab resize: the Qwen2.5 tokenizer's native ids are used as-is (the old
 shared-vocab mHuBERT scheme grew the embedding table; the native audio path does
 not need any new rows).
 """
+import contextlib
 import copy
 
 import torch
@@ -82,6 +83,35 @@ def _force_eager_attention(module):
             cfg._attn_implementation = "eager"
 
 
+@contextlib.contextmanager
+def _eager_attention(module):
+    """Temporarily run `module` on eager attention, restoring the original after.
+
+    ROCm's SDPA returns **NaN from its backward** whenever an attention mask is
+    present — the forward is finite, so the loss looks healthy and only the
+    gradients are poisoned. Autograd anomaly detection names it outright:
+    `ScaledDotProductEfficientAttentionBackward0 returned nan values`.
+
+    That is why only *ragged* audio batches broke: a batch of equal-length clips
+    needs no padding mask and trains fine, while one short clip introduces the mask
+    and NaNs every tower gradient on that step (measured: 488/488 params, at any lr).
+    Text is unaffected — packed token batches carry no padding mask — so the decoder
+    keeps fast SDPA there and only the audio branch, whose sequences are ~750 frames
+    (vs 4096 for text), pays for eager.
+    """
+    saved = []
+    for m in module.modules():
+        cfg = getattr(m, "config", None)
+        if cfg is not None:
+            saved.append((cfg, cfg._attn_implementation))
+            cfg._attn_implementation = "eager"
+    try:
+        yield
+    finally:
+        for cfg, impl in saved:
+            cfg._attn_implementation = impl
+
+
 class OmniThinkerCPT(nn.Module):
     """Thinker + a next-audio-frame regression head, with a modality-branching forward.
 
@@ -104,15 +134,24 @@ class OmniThinkerCPT(nn.Module):
         head_dim = int(task_cfg.get("audio_head_dim", None) or hidden)
         self.audio_head = nn.Linear(hidden, head_dim)
 
-        # EMA target encoder: a frozen copy whose weights track the live encoder.
-        # Only built when asked for — it costs a second copy of the audio tower.
+        # Target encoder for the regression targets. `frozen` keeps the pretrained
+        # tower fixed; `ema` lets it track the live tower slowly. Either way it is
+        # held inside a plain list, NOT assigned as a submodule: nn.Module would
+        # register it, and FSDP's auto-wrap policy — which keys off the layer CLASS —
+        # would then shard the copy's Qwen2_5OmniAudioEncoderLayers exactly as it
+        # shards the live tower's. `update_ema` would be lerping a rank's empty shard
+        # against a full tensor ("size of tensor a (0) must match b (491520)"). Hidden
+        # from .modules()/.parameters(), it stays whole and unsharded on every rank —
+        # it is frozen and only ~0.65B params in bf16, so replicating it is cheap.
         self.ema_decay = float(task_cfg.get("ema_decay", 0.999))
-        if self.target_detach == "ema":
-            self.target_tower = copy.deepcopy(thinker.audio_tower)
-            for p in self.target_tower.parameters():
+        if self.target_detach in ("ema", "frozen"):
+            tower = copy.deepcopy(thinker.audio_tower).to(torch.bfloat16)
+            for p in tower.parameters():
                 p.requires_grad_(False)
+            tower.eval()
+            self._target = [tower]
         else:
-            self.target_tower = None
+            self._target = []
 
     # -- audio encoder ---------------------------------------------------------
     def _encode_audio(self, tower, input_features, feature_lens):
@@ -158,18 +197,24 @@ class OmniThinkerCPT(nn.Module):
             self.thinker.audio_tower, input_features, feature_lens
         )
 
-        hidden = self.thinker.model(
-            inputs_embeds=embeds,
-            attention_mask=frame_mask.long(),
-            use_cache=False,
-        ).last_hidden_state
+        # The audio branch always carries a padding mask (clips have unequal lengths),
+        # which is exactly the case ROCm's SDPA backward NaNs on. See _eager_attention.
+        with _eager_attention(self.thinker.model):
+            hidden = self.thinker.model(
+                inputs_embeds=embeds,
+                attention_mask=frame_mask.long(),
+                use_cache=False,
+            ).last_hidden_state
         pred = self.audio_head(hidden)[:, :-1]           # predict frame t+1 from t
 
-        if self.target_tower is not None:
+        tower = self.target_tower
+        if tower is not None:
+            # Hidden from the module tree, so Accelerate never moved it — place it on
+            # the rank's device on first use.
+            if next(tower.parameters()).device != embeds.device:
+                tower.to(embeds.device)
             with torch.no_grad():
-                target_all, _ = self._encode_audio(
-                    self.target_tower, input_features, feature_lens
-                )
+                target_all, _ = self._encode_audio(tower, input_features, feature_lens)
         else:
             target_all = embeds
         target = target_all[:, 1:].detach()               # stop-grad: see module docstring
@@ -218,14 +263,31 @@ class OmniThinkerCPT(nn.Module):
             return self._forward_audio(batch["input_features"], batch["feature_lens"])
         return self._forward_text(**batch)
 
+    @property
+    def target_tower(self):
+        """The (unsharded, frozen) target encoder, or None under plain `detach`."""
+        return self._target[0] if self._target else None
+
     @torch.no_grad()
     def update_ema(self):
-        """Track the live encoder with the frozen target copy (no-op unless ema)."""
-        if self.target_tower is None:
+        """Track the live encoder with the target copy (no-op unless target_detach=ema).
+
+        Under FSDP the live tower's parameters are sharded, so a rank holds only a
+        slice of each one while the target is whole. `summon_full_params` gathers the
+        tower for the duration of the lerp; without it the shapes do not line up.
+        """
+        if self.target_detach != "ema" or not self._target:
             return
-        for tgt, src in zip(self.target_tower.parameters(),
-                            self.thinker.audio_tower.parameters()):
-            tgt.lerp_(src.detach(), 1.0 - self.ema_decay)
+        live = self.thinker.audio_tower
+        ctx = contextlib.nullcontext()
+        if any(hasattr(m, "_fsdp_wrapped_module") for m in live.modules()):
+            from torch.distributed.fsdp import FullyShardedDataParallel as FSDP
+            ctx = FSDP.summon_full_params(live, writeback=False, recurse=True)
+        with ctx:
+            for tgt, src in zip(self._target[0].parameters(), live.parameters()):
+                if tgt.shape != src.shape:
+                    return          # still sharded: skip rather than corrupt the target
+                tgt.lerp_(src.detach().to(tgt.dtype), 1.0 - self.ema_decay)
 
 
 def apply_freezing(model, args):
