@@ -1,5 +1,6 @@
 #!/bin/bash
 #SBATCH --account=project_465002364
+#SBATCH --job-name=joey-ablation
 #SBATCH --partition=standard-g
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=8

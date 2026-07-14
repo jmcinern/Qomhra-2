@@ -42,7 +42,11 @@ data:
   seq_len: 4096
   micro_batch_size: 1
   text_bin: ${paths.tokens}/shards/*.bin   # per-source globs in the ablation configs
-  text_token_budget: 200000000     # ~200M tok; a 400-step 2-node run consumes ~210M
+  # The Omni-tokenized corpus is 2.147B tokens (text/tokens_full/meta.json). A 400-step
+  # 2-node run consumes ~210M, so this budget caps how much of it we stream in — it is
+  # NOT the corpus size. Keep it above the run's consumption or the loader will wrap
+  # and repeat data.
+  text_token_budget: 2147444837
   # --- audio ---
   audio_manifest: ${paths.audio}/manifest.tsv
   audio_root: ${paths.audio}

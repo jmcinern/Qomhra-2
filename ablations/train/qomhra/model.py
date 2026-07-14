@@ -60,7 +60,26 @@ def _load_thinker(m):
     if getattr(thinker, "visual", None) is not None:
         thinker.visual = None
 
+    # The audio tower returns all-NaN under SDPA on ROCm (verified: every one of
+    # 3,072,000 output elements NaN with sdpa, clean under eager, in both fp32 and
+    # bf16, with correctly-loaded weights). Its attention builds a float -inf
+    # additive mask, which the ROCm SDPA kernel turns into NaN. The text decoder is
+    # unaffected, so pin eager on the tower only and leave the decoder on SDPA.
+    _force_eager_attention(thinker.audio_tower)
+
     return thinker
+
+
+def _force_eager_attention(module):
+    """Set `_attn_implementation = "eager"` on a submodule tree's configs.
+
+    transformers dispatches attention per-module off its own config, so overriding
+    the tower's config (and its layers') is enough — the decoder keeps SDPA.
+    """
+    for m in module.modules():
+        cfg = getattr(m, "config", None)
+        if cfg is not None:
+            cfg._attn_implementation = "eager"
 
 
 class OmniThinkerCPT(nn.Module):

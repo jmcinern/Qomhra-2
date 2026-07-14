@@ -22,6 +22,12 @@ import os
 import numpy as np
 import torch
 from torch.utils.data import IterableDataset
+# Imported at module scope, NOT lazily inside load_wav(). The python env is a
+# squashfs on Lustre: a first-call import from inside a dataloader worker sends
+# every worker on every rank into importlib's path crawl at once, and the metadata
+# storm wedges the run before it can produce a single batch.
+from scipy.io import wavfile
+import torchaudio
 
 SAMPLE_RATE = 16000
 
@@ -135,8 +141,6 @@ def build_text_corpus(args):
 def load_wav(path):
     """Return float32 mono @16 kHz in [-1,1]. scipy, because the container has no
     soundfile; the corpus is 16 kHz mono int16 PCM (see speech/speech-tknz.py)."""
-    from scipy.io import wavfile
-
     sr, data = wavfile.read(path)
     if data.ndim > 1:
         data = data.mean(axis=1)
@@ -149,7 +153,10 @@ def load_wav(path):
     else:
         wav = data.astype(np.float32)
     if sr != SAMPLE_RATE:
-        import torchaudio
+        # torchaudio is imported at module scope for the same reason as scipy — and
+        # more so here: this branch fires only on the ranks that happen to draw an
+        # off-rate file, so a lazy import would stall those ranks alone and diverge
+        # the collective schedule.
         wav = torchaudio.functional.resample(
             torch.from_numpy(wav), sr, SAMPLE_RATE
         ).numpy()
@@ -228,7 +235,13 @@ class AudioClipDataset(IterableDataset):
                     feats = fe(chunk, sampling_rate=SAMPLE_RATE,
                                return_attention_mask=True, return_tensors="pt")
                     mel = feats["input_features"][0]                 # (128, T)
-                    flen = int(feats["feature_attention_mask"][0].sum())
+                    # The bare WhisperFeatureExtractor calls this `attention_mask`;
+                    # only the Omni processor renames it `feature_attention_mask`.
+                    # It marks the true mel frames inside Whisper's 30 s zero-padding.
+                    mask = feats.get("feature_attention_mask")
+                    if mask is None:
+                        mask = feats["attention_mask"]
+                    flen = int(mask[0].sum())
                     yield {"input_features": mel[:, :flen], "feature_lens": flen}
 
 

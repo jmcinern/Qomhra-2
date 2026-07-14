@@ -78,7 +78,8 @@ export SQSH HF_HOME WANDB_API_KEY SIF MASTER_ADDR MASTER_PORT TRAIN_DIR \
 # bare `srun --jobid` launches a SINGLE task (world size 1, no FSDP). State the
 # shape explicitly: one rank per GCD, over every node in the allocation.
 NNODES=$(squeue -j "${JOBID}" -h -o %D)
-srun --jobid="${JOBID}" --nodes="${NNODES}" --ntasks-per-node=8 \
+srun --jobid="${JOBID}" --job-name=joey-ablation-interactive \
+     --nodes="${NNODES}" --ntasks-per-node=8 \
      --gpus-per-node=8 --cpus-per-task=7 --cpu-bind="${CPU_BIND}" \
      "${RANK_WRAPPER}" "$@" 2>&1 | tee "${OUTPUT_DIR}/${RUN_TAG}.log"
 rm -f "${RANK_WRAPPER}"

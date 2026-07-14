@@ -6,6 +6,7 @@
 # text sources (fast correctness + throughput check). For the FULL corpus, set
 # WORD_BUDGET=0 (and bump --time).  Prereq: run download_qwen_omni.sh once first.
 #SBATCH --account=project_465002364
+#SBATCH --job-name=joey-tokenize-text
 #SBATCH --partition=small
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=128
