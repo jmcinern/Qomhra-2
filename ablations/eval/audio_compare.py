@@ -109,6 +109,8 @@ def main():
                                                         "..", "Before_After", "input"))
     ap.add_argument("--n", type=int, default=12)
     ap.add_argument("--max-seconds", type=float, default=12.0)
+    ap.add_argument("--heldout", action="store_true",
+                    help="score ONLY utterances excluded from aligned training")
     ap.add_argument("--out", default=None)
     args = ap.parse_args()
     if args.baseline is None:
@@ -116,8 +118,17 @@ def main():
 
     # Same utterances for every model, so the comparison is like-for-like.
     rows = [json.loads(l) for l in open(JSONL)]
-    asr_rows = [r for r in rows if r["duration_s"] <= args.max_seconds][:args.n]
-    print(f"[data] {len(asr_rows)} Irish ASR utterances", flush=True)
+    asr_rows = [r for r in rows if r["duration_s"] <= args.max_seconds]
+    if args.heldout:
+        # The aligned run trains on ~1 epoch of this same file, so without this the
+        # ASR score is measuring memorisation. Same md5 rule the dataset excludes by.
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "train"))
+        from qomhra.data import AlignedClipDataset
+        asr_rows = [r for r in asr_rows if AlignedClipDataset.is_heldout(r["audio"])]
+    asr_rows = asr_rows[:args.n]
+    print(f"[data] {len(asr_rows)} Irish ASR utterances"
+          f"{' (HELD OUT of training)' if args.heldout else ' (may include training data)'}",
+          flush=True)
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     dtype = torch.bfloat16

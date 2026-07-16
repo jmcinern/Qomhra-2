@@ -241,6 +241,53 @@ class OmniThinkerCPT(nn.Module):
             "n_audio_frames": int(valid.sum()),
         }
 
+    def _forward_aligned(self, input_features, feature_lens, input_ids, labels,
+                         text_lens=None, **_):
+        """Ablation 4: predict the transcript FROM the speech. The only branch that
+        connects the two modalities.
+
+        Audio frames are prefixed to the transcript embeddings and the loss is taken on
+        the text positions only, so gradient reaches the encoder solely through "did
+        these frames let the decoder produce these words". That is the supervision
+        next-frame regression cannot provide: measured, regression leaves the encoder
+        rendering Irish through an English lexicon ("Rudaí deasa" -> "ready does the").
+
+        No loss on the audio positions: there is no ground-truth token for a mel frame,
+        and predicting the next audio frame here is exactly the objective we are trying
+        to complement.
+        """
+        embeds, frame_mask = self._encode_audio(
+            self.thinker.audio_tower, input_features, feature_lens
+        )
+        tok_embeds = self.thinker.model.embed_tokens(input_ids).to(embeds.dtype)
+        inputs = torch.cat([embeds, tok_embeds], dim=1)
+
+        text_mask = labels.ne(-100)
+        attn = torch.cat([frame_mask, text_mask], dim=1).long()
+
+        # Ragged by construction (clips and transcripts both vary), which is the case
+        # ROCm's SDPA backward NaNs on. See _eager_attention.
+        with _eager_attention(self.thinker.model):
+            hidden = self.thinker.model(
+                inputs_embeds=inputs, attention_mask=attn, use_cache=False,
+            ).last_hidden_state
+
+        # Predict token t+1 from position t. The last audio frame is the position that
+        # predicts the FIRST token, so the text logits start one before the text block.
+        n_audio = embeds.shape[1]
+        logits = self.thinker.lm_head(hidden[:, n_audio - 1 : -1])
+        loss = F.cross_entropy(
+            logits.reshape(-1, logits.shape[-1]).float(),
+            labels.reshape(-1),
+            ignore_index=-100,
+        )
+        return {
+            "loss": loss,
+            "loss_aligned": loss.detach(),
+            "n_text_tokens": int(text_mask.sum()),
+            "n_audio_frames": int(frame_mask.sum()),
+        }
+
     def _forward_text(self, input_ids, labels=None, **_):
         hidden = self.thinker.model(
             input_ids=input_ids, use_cache=False
@@ -259,6 +306,11 @@ class OmniThinkerCPT(nn.Module):
         }
 
     def forward(self, **batch):
+        # Aligned batches carry BOTH mel and ids, so they must be tested before the
+        # audio-only check or they would silently take the regression branch and the
+        # transcripts would be ignored.
+        if "input_features" in batch and "input_ids" in batch:
+            return self._forward_aligned(**batch)
         if "input_features" in batch:
             return self._forward_audio(batch["input_features"], batch["feature_lens"])
         return self._forward_text(**batch)
@@ -333,6 +385,26 @@ def get_model(args):
     thinker.config.use_cache = False
 
     model = OmniThinkerCPT(thinker, task)
+
+    # Ablation 4 continues from the `both` checkpoint rather than from stock Omni, so
+    # the aligned phase starts where ablation 3 left off. Loaded before FSDP wraps the
+    # model and before gradient checkpointing, so the state dict keys still match.
+    init_from = m.get("init_from", None)
+    if init_from:
+        import os as _os
+        path = _os.path.join(init_from, "pytorch_model.bin")
+        if not _os.path.exists(path):
+            raise SystemExit(f"model.init_from: no pytorch_model.bin under {init_from}")
+        state = torch.load(path, map_location="cpu", weights_only=True)
+        missing, unexpected = model.load_state_dict(state, strict=False)
+        # Loud, because silently starting from stock weights would look like "the
+        # aligned data did nothing" rather than "the checkpoint never loaded".
+        print(f"[init] resumed from {init_from} "
+              f"({len(missing)} missing, {len(unexpected)} unexpected keys)", flush=True)
+        if len(missing) > 50:
+            raise SystemExit(f"init_from loaded almost nothing — {len(missing)} missing "
+                             f"keys, e.g. {missing[:5]}. Refusing to train from stock "
+                             f"weights while claiming to resume.")
 
     if m.gradient_checkpointing:
         thinker.gradient_checkpointing_enable(

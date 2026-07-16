@@ -93,7 +93,10 @@ class LossWindow:
         self.sums, self.counts = {}, {}
 
     def add(self, out, grad_acc):
-        for key in ("loss_text", "loss_audio", "audio_target_var"):
+        # loss_aligned is ablation 4's speech->transcript CE. Kept separate from
+        # loss_text: same units (nats/token) but a different task, and averaging them
+        # would hide which one is moving.
+        for key in ("loss_text", "loss_audio", "loss_aligned", "audio_target_var"):
             if key in out:
                 self.sums[key] = self.sums.get(key, 0.0) + float(out[key]) / grad_acc
                 self.counts[key] = self.counts.get(key, 0.0) + 1.0 / grad_acc

@@ -245,6 +245,155 @@ class AudioClipDataset(IterableDataset):
                     yield {"input_features": mel[:, :flen], "feature_lens": flen}
 
 
+class AlignedClipDataset(IterableDataset):
+    """(speech, transcript) pairs for ablation 4 — the ONLY aligned objective.
+
+    Ablations 2/3 train audio by next-frame regression, which never connects speech to
+    text: measured, the encoder hears Irish accurately and renders it through an English
+    lexicon ("Rudaí deasa" -> "ready does the"). This dataset supplies the supervision
+    that link needs — the audio and the words actually spoken in it.
+
+    Reads aligned_setup.jsonl (fields: audio, duration_s, text). Unlike AudioClipDataset
+    there is NO windowing: a transcript labels the whole utterance, so a clip cut in half
+    would be paired with words that are not in it. Over-long clips are dropped instead
+    (only 4 of 8,010 exceed 30 s).
+    """
+
+    @staticmethod
+    def is_heldout(audio_path, mod=40):
+        """Eval split, by md5 of the audio path — NOT row order, so it stays stable as
+        the jsonl grows and training and eval agree without passing a list around.
+        Mirrors eval/asr_baseline.py::is_heldout."""
+        import hashlib
+        return int(hashlib.md5(audio_path.encode()).hexdigest(), 16) % mod == 0
+
+    def __init__(self, jsonl, audio_root, model_dir, max_s=30.0, seed=0,
+                 exclude_heldout=True):
+        import json
+        self.rows = []
+        n_held = 0
+        with open(jsonl, encoding="utf-8") as f:
+            for line in f:
+                r = json.loads(line)
+                if r["duration_s"] > max_s:
+                    continue
+                if exclude_heldout and self.is_heldout(r["audio"]):
+                    n_held += 1
+                    continue
+                self.rows.append((os.path.join(audio_root, r["audio"]), r["text"]))
+        if not self.rows:
+            raise RuntimeError(f"no aligned rows from {jsonl}")
+        if exclude_heldout and n_held == 0:
+            raise RuntimeError("exclude_heldout=True but nothing was held out — the "
+                               "eval split would be training data and every WER "
+                               "would be memorisation")
+        self.model_dir = model_dir
+        self.seed = int(seed)
+        self.rank = int(os.environ.get("RANK", "0"))
+        self.world = int(os.environ.get("WORLD_SIZE", "1"))
+        self.idx = list(range(self.rank, len(self.rows), self.world))
+        self._fe = None
+        self._tok = None
+        if self.rank == 0:
+            print(f"[data] aligned corpus: {len(self.rows):,} utterances "
+                  f"({len(self.idx):,} on this rank), {n_held:,} held out for eval",
+                  flush=True)
+
+    @staticmethod
+    def _local_snapshot(model_dir):
+        """Resolve a repo id to its on-disk snapshot.
+
+        AutoTokenizer.from_pretrained("Qwen/...") runs an `is_base_mistral` check that
+        calls the HF API, which the compute nodes cannot reach -> OfflineModeIsEnabled.
+        A local path short-circuits it as `_is_local`. AutoFeatureExtractor does no such
+        check, which is why the unlabelled-audio path never hit this.
+        """
+        if os.path.isdir(model_dir):
+            return model_dir
+        hub = os.path.join(os.environ.get("HF_HOME", ""), "hub")
+        pat = os.path.join(hub, "models--" + model_dir.replace("/", "--"),
+                           "snapshots", "*")
+        snaps = sorted(glob.glob(pat))
+        if not snaps:
+            raise RuntimeError(f"no local snapshot for {model_dir!r} under {hub}; "
+                               f"the tokenizer cannot be fetched on an offline node")
+        return snaps[0]
+
+    def _extractors(self):
+        # Lazily, so they land in the worker process rather than the parent.
+        if self._fe is None:
+            from transformers import AutoFeatureExtractor, AutoTokenizer
+            local = self._local_snapshot(self.model_dir)
+            fe = AutoFeatureExtractor.from_pretrained(local)
+            self._fe = getattr(fe, "feature_extractor", fe)
+            self._tok = AutoTokenizer.from_pretrained(local)
+            # <|im_end|>, not tok.eos_token_id: the latter is right on this checkpoint
+            # but generation_config's is None, and the eval stops on <|im_end|>. Train
+            # the terminator the eval actually looks for.
+            self._eos_id = self._tok.convert_tokens_to_ids("<|im_end|>")
+        return self._fe, self._tok
+
+    def __iter__(self):
+        info = torch.utils.data.get_worker_info()
+        wid, nworkers = (info.id, info.num_workers) if info else (0, 1)
+        order = self.idx[wid::nworkers]
+        if not order:
+            return
+        fe, tok = self._extractors()
+        rng = np.random.default_rng(self.seed + 1000 * self.rank + wid)
+        while True:
+            for j in rng.permutation(len(order)):
+                path, text = self.rows[order[j]]
+                try:
+                    wav = load_wav(path)
+                except Exception:
+                    continue  # unreadable file: skip rather than kill the run
+                feats = fe(wav, sampling_rate=SAMPLE_RATE,
+                           return_attention_mask=True, return_tensors="pt")
+                mask = feats.get("feature_attention_mask")
+                if mask is None:
+                    mask = feats["attention_mask"]
+                flen = int(mask[0].sum())
+                # Append <|im_end|>: without a terminator the model transcribes the
+                # utterance correctly and then never stops — measured, it produced
+                # "Go raibh an bhíonn ag dul isteach ar bhealach. Go raibh. Go raibh.
+                # Go raibh..." to the token budget, and every repeat scores as an
+                # insertion (430% WER on an utterance it had largely got right). The
+                # transcript is the whole target, so its end is a fact worth teaching.
+                ids = torch.cat([tok(text, return_tensors="pt").input_ids[0],
+                                 torch.tensor([self._eos_id])])
+                yield {"input_features": feats["input_features"][0][:, :flen],
+                       "feature_lens": flen,
+                       "input_ids": ids}
+
+
+def collate_aligned(items):
+    """Pad mel and transcript ids independently; -100 marks non-target positions.
+
+    The audio side is padded exactly as collate_audio does. The text side is padded with
+    -100 rather than a pad id so cross_entropy ignores it — otherwise the model would be
+    trained to predict padding, which is most of a short utterance's tail.
+    """
+    lens = torch.tensor([it["feature_lens"] for it in items], dtype=torch.long)
+    n_mel = items[0]["input_features"].shape[0]
+    feats = torch.zeros(len(items), n_mel, int(lens.max()), dtype=torch.float32)
+    for i, it in enumerate(items):
+        f = it["input_features"]
+        feats[i, :, : f.shape[1]] = f
+
+    tlens = [it["input_ids"].shape[0] for it in items]
+    max_t = max(tlens)
+    ids = torch.zeros(len(items), max_t, dtype=torch.long)
+    labels = torch.full((len(items), max_t), -100, dtype=torch.long)
+    for i, it in enumerate(items):
+        n = tlens[i]
+        ids[i, :n] = it["input_ids"]
+        labels[i, :n] = it["input_ids"]
+    return {"input_features": feats, "feature_lens": lens,
+            "input_ids": ids, "labels": labels,
+            "text_lens": torch.tensor(tlens, dtype=torch.long)}
+
+
 def collate_audio(items):
     """Pad variable-length mel to the batch max; keep true lengths for the encoder.
 
@@ -309,6 +458,20 @@ def get_dataloader(args, vocab_size):
             num_workers=int(d.get("audio_workers", 4)),   # mel extraction is CPU-bound
             pin_memory=True,
             collate_fn=collate_audio,
+        )
+
+    if source == "aligned":
+        loaders["aligned"] = DataLoader(
+            AlignedClipDataset(
+                jsonl=d.aligned_jsonl,
+                audio_root=d.aligned_root,
+                model_dir=args.model.base_model_id,
+                seed=args.seed,
+            ),
+            batch_size=int(d.get("aligned_micro_batch_size", 2)),
+            num_workers=int(d.get("audio_workers", 4)),   # mel extraction is CPU-bound
+            pin_memory=True,
+            collate_fn=collate_aligned,
         )
 
     if source == "synthetic":
