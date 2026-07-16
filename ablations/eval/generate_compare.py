@@ -102,10 +102,18 @@ def generate(thinker, proc, prompts, device, max_new_tokens, temperature):
     return rows
 
 
-def load_baseline(model_id, device, dtype):
+def load_baseline(model_id, device, dtype, attn="sdpa"):
     """Stock Thinker, loaded directly rather than via Qwen2_5OmniForConditionalGeneration
     (which also builds the Talker and torch.loads the TTS speaker dict — refused on the
-    container's torch 2.5). See qomhra/model.py::_load_thinker."""
+    container's torch 2.5). See qomhra/model.py::_load_thinker.
+
+    `attn` defaults to sdpa, which is safe HERE because packed text at seq_len 4096
+    carries no attention mask. Callers that feed AUDIO must pass attn="eager": ROCm's
+    SDPA returns NaN on masked batches, and a NaN'd baseline decodes to a wall of '!'
+    (token 0) that still scores a plausible-looking ~100% WER — a silently wrong
+    measurement rather than a crash. The training rig avoids this via
+    model.py::_force_eager_attention, which is why checkpoints were unaffected.
+    """
     from transformers import AutoConfig
     from transformers.models.qwen2_5_omni.modeling_qwen2_5_omni import (
         Qwen2_5OmniThinkerForConditionalGeneration,
@@ -113,7 +121,7 @@ def load_baseline(model_id, device, dtype):
     cfg = AutoConfig.from_pretrained(model_id)
     thinker = Qwen2_5OmniThinkerForConditionalGeneration.from_pretrained(
         model_id, config=cfg.thinker_config, torch_dtype=dtype,
-        attn_implementation="sdpa",
+        attn_implementation=attn,
     )
     return thinker.to(device).eval()
 
