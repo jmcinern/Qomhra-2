@@ -17,7 +17,15 @@ task:
   # Speech objective: predict the next audio-encoder frame embedding.
   audio_loss: cosine               # cosine (1 - cos sim) | l2
   audio_head_dim: null             # null -> thinker hidden size (2048)
-  target_detach: detach            # detach | ema  (stop-grad on the regression target)
+  # detach | frozen | ema  (how the next-frame regression target is produced)
+  # `frozen` is the DEFAULT because `detach` is measured-broken: a stop-grad on the
+  # target alone cannot prevent collapse, since the trained encoder still sits upstream
+  # of its own targets. Over 40 steps it drove audio_target_var 0.43 -> 0.048 with the
+  # loss following to 0.09 — flattening the targets, not learning to predict them.
+  # omni_both.yaml inherited `detach` and collapsed to var 0.029 by step 60; that is why
+  # the default moved rather than being overridden per-config.
+  # Watch audio_target_var: it holds ~0.43 when the objective is doing real work.
+  target_detach: frozen
   ema_decay: 0.999                 # only used when target_detach: ema
   text_step_frac: 0.5              # 'both': fraction of global steps that are text
 
