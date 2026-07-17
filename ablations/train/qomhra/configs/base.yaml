@@ -37,9 +37,22 @@ model:
   # the Talker and Token2Wav are never built.
   base_model_id: Qwen/Qwen2.5-Omni-3B
   attn_implementation: sdpa        # ROCm-safe; flash-attn absent in the container
+  # Leave null. Forcing [flash, efficient] raises "No available kernel" on any batch
+  # that carries a mask (the audio branches), because ROCm has no fused masked kernel —
+  # the text path already gets flash via _disable_gqa_in_sdpa without forcing anything.
   sdpa_backends: null
-  gradient_checkpointing: true
-  compile: false                   # torch.compile after FSDP wrap (was +66% in the rig)
+  # false is MEASURED-FASTER, but only since the GQA/SDPA fix (see model.py
+  # ::_disable_gqa_in_sdpa). Before it, attention fell back to the math kernel and one
+  # forward needed ~59 GiB of score matrices, so checkpointing was mandatory just to
+  # fit. With the fused kernel: gc=false 2.878 s/step @ 38.7 GiB peak vs gc=true 3.488
+  # s/step @ 20.3 GiB — identical loss (2.544 @ step 40).
+  # Turn back ON if memory gets tight (longer seq_len, micro_batch_size>1, or the audio
+  # branches, which run eager and do not benefit): mb=2 with gc=false OOMs.
+  gradient_checkpointing: false
+  # Stays false: the squashfs env's triton and the container's torch inductor disagree
+  # ("cannot import name 'triton_key' from triton.compiler.compiler"), so this raises at
+  # startup. The "+66% in the rig" note was measured in a different environment.
+  compile: false
 
 data:
   source: real                     # real (text) | audio | mixed | synthetic

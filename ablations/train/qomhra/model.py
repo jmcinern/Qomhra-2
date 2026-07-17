@@ -48,6 +48,10 @@ def _load_thinker(m):
         Qwen2_5OmniThinkerForConditionalGeneration,
     )
 
+    # Must happen before the layers are built: they capture the attention interface
+    # at construction time in some paths, and it costs nothing to do it early.
+    print(f"[attn] {_disable_gqa_in_sdpa()}")
+
     cfg = AutoConfig.from_pretrained(m.base_model_id)
     thinker = Qwen2_5OmniThinkerForConditionalGeneration.from_pretrained(
         m.base_model_id,
@@ -110,6 +114,34 @@ def _eager_attention(module):
     finally:
         for cfg, impl in saved:
             cfg._attn_implementation = impl
+
+
+def _disable_gqa_in_sdpa():
+    """Make transformers expand KV heads itself instead of asking SDPA to do it.
+
+    Qwen2.5-Omni is GQA: 16 query heads, 2 KV heads. transformers' `use_gqa_in_sdpa`
+    returns True for "cuda" + torch>=2.5 + no mask, which passes `enable_gqa=True` and
+    skips `repeat_kv`. ROCm reports as cuda, but this build's fused kernels reject
+    mismatched head counts outright:
+
+        both fused kernels require query, key and value to have the same num_heads.
+        Query.sizes(): [1, 16, 4096, 128], Key sizes(): [1, 2, 4096, 128]
+
+    So flash AND mem-efficient silently decline and every decoder layer falls back to
+    MATH, which materialises the full (1, 16, 4096, 4096) score matrix. Measured at the
+    real training shape: math 3.50 GiB peak vs flash 0.06 GiB — this one predicate is
+    why attention was ~27% of CUDA time and why gradient_checkpointing could not be
+    turned off (59 GiB of activations in a single forward).
+
+    Forcing the repeat_kv branch costs a KV expand (2 -> 16 heads, an expand+reshape)
+    and buys the fused kernel. Guarded to ROCm so a CUDA host keeps the cheaper path.
+    """
+    if torch.version.hip is None:
+        return "gqa-in-sdpa: left enabled (not ROCm)"
+    from transformers.integrations import sdpa_attention as sa
+
+    sa.use_gqa_in_sdpa = lambda attention_mask, key: False
+    return "gqa-in-sdpa: DISABLED (ROCm fused kernels reject mismatched num_heads)"
 
 
 class OmniThinkerCPT(nn.Module):

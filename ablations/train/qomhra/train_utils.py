@@ -159,6 +159,11 @@ def train(model, dataloaders, accelerator, optimizer, lr_scheduler, logger, args
             stats = window.stats()
             stats["lr"] = optimizer.param_groups[0]["lr"]
             stats["seconds_per_step"] = sec_per_step
+            # Peak HBM since the last window. Without this a run reports throughput
+            # happily while sitting 3 GiB from an OOM, and the first sign of trouble is
+            # a config change failing for reasons that look unrelated to it.
+            stats["peak_mem_gib"] = torch.cuda.max_memory_allocated() / 2**30
+            torch.cuda.reset_peak_memory_stats()
             # units/s is world-wide: each rank counted only its own micro-batches.
             stats["units_per_second"] = (
                 window_units * accelerator.num_processes / max(elapsed, 1e-9)
