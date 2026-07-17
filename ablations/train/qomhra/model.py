@@ -102,6 +102,14 @@ def _eager_attention(module):
     Text is unaffected — packed token batches carry no padding mask — so the decoder
     keeps fast SDPA there and only the audio branch, whose sequences are ~750 frames
     (vs 4096 for text), pays for eager.
+
+    STILL REQUIRED AFTER the GQA fix (_disable_gqa_in_sdpa), which was expected to make
+    it redundant — mem-efficient handles masks and an isolated probe of the real model
+    came back clean (loss 1.0060, 0/488 tower grads NaN). It is NOT clean in training:
+    removing this context NaN'd loss_audio AND loss_aligned from step 10, and was not
+    even faster (4,650 vs 5,150 frames/s, at 61.2 GiB — near OOM). The probe lacked
+    FSDP, autocast, grad accumulation and real ragged data; do not re-remove this on
+    single-GPU probe evidence. See _probe_speech_sdpa.py.
     """
     saved = []
     for m in module.modules():

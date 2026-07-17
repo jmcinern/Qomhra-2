@@ -8,6 +8,12 @@ defaults:
   - base
   - _self_
 
+model:
+  # This ablation alternates text and audio steps, and the audio steps are the ones that
+  # OOM without checkpointing (they run eager attention — see omni_speech.yaml). The
+  # setting is global to the run, so the audio steps decide it: true.
+  gradient_checkpointing: true
+
 task:
   modality: both
   text_step_frac: 0.5

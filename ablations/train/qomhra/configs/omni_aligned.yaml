@@ -32,6 +32,9 @@ model:
   # Set on the command line: the `both` checkpoint to resume from. Without it this
   # trains from stock Omni, which is a different experiment.
   init_from: null
+  # Required here for the same reason as omni_speech: this branch runs eager attention,
+  # so base.yaml's `false` (a text-only win) overflows HBM. See omni_speech.yaml.
+  gradient_checkpointing: true
 
 data:
   source: aligned

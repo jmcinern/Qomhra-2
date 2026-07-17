@@ -8,6 +8,15 @@ defaults:
   - base
   - _self_
 
+model:
+  # base.yaml defaults this to false, which is correct ONLY for text. The audio
+  # branches pin eager attention (the tower NaNs under SDPA — model.py::
+  # _eager_attention), so they get nothing from the fused kernel and still pay full
+  # score matrices. Measured: without checkpointing this run peaks at ~61 of 64 GiB and
+  # then dies in NCCL with "Failed to CUDA host alloc" — a host-side error that does not
+  # look like a GPU OOM at all.
+  gradient_checkpointing: true
+
 task:
   modality: speech
   audio_loss: cosine
