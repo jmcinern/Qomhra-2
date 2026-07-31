@@ -1,0 +1,167 @@
+{
+  "2013-A-fogra2-q3": {
+    "just_audio": {"marks": 0, "reason": "Incoherent fragment, does not name 'oíche eolais'."},
+    "no_context": {"marks": 0, "reason": "Incoherent fragment, no answer given."},
+    "just_transcript": {"marks": 0, "reason": "Incoherent fragment, no answer given."}
+  },
+  "2013-A-fogra2-q4": {
+    "just_audio": {"marks": 0, "reason": "Vague restatement, no mention of water/Africa."},
+    "no_context": {"marks": 0, "reason": "Incoherent fragment, no relevant detail."},
+    "just_transcript": {"marks": 0, "reason": "No mention of uisce/Afraic, does not answer the question."}
+  },
+  "2013-B-comhra1-q6": {
+    "just_audio": {"marks": 0, "reason": "Incoherent fragment, no answer."},
+    "no_context": {"marks": 0, "reason": "Incoherent fragment, no answer."},
+    "just_transcript": {"marks": 1, "reason": "Names 'lóistín' only, matching the 1-mark partial tier (missing 'costas')."}
+  },
+  "2014-A-fogra1-q1": {
+    "just_audio": {"marks": 0, "reason": "No answer given, just repeats the question context."},
+    "no_context": {"marks": 0, "reason": "No answer given."},
+    "just_transcript": {"marks": 2, "reason": "Exact match: 'Rúnaí i Roinn na Gaeilge'."}
+  },
+  "2014-C-piosa1-q2": {
+    "just_audio": {"marks": 0, "reason": "No answer, just restates the question."},
+    "no_context": {"marks": 0, "reason": "'Rádóir' is not a listed answer."},
+    "just_transcript": {"marks": 0, "reason": "'Ba Gaeilge' too vague, does not match 'Pobal na Gaeilge'."}
+  },
+  "2014-C-piosa2-q2": {
+    "just_audio": {"marks": 0, "reason": "No specific damage detail supplied."},
+    "no_context": {"marks": 0, "reason": "No specific damage detail supplied."},
+    "just_transcript": {"marks": 0, "reason": "No specific damage detail matching the scheme."}
+  },
+  "2015-A-fogra2-q3": {
+    "just_audio": {"marks": 0, "reason": "No event named."},
+    "no_context": {"marks": 0, "reason": "No event named."},
+    "just_transcript": {"marks": 2, "reason": "Exact match: 'Péintéireacht'."}
+  },
+  "2015-B-comhra1-q4": {
+    "just_audio": {"marks": 0, "reason": "Sentence trails off, no point of information given."},
+    "no_context": {"marks": 0, "reason": "Sentence trails off, no point of information given."},
+    "just_transcript": {"marks": 0, "reason": "'Athchúrsáil' (recycling) is not a listed accepted answer."}
+  },
+  "2015-C-piosa2-q2": {
+    "just_audio": {"marks": 0, "reason": "No name given."},
+    "no_context": {"marks": 0, "reason": "No name given."},
+    "just_transcript": {"marks": 2, "reason": "Exact match: 'Tuairisc.ie'."}
+  },
+  "2016-B-comhra2-q3": {
+    "just_audio": {"marks": 0, "reason": "Merely restates the question, gives no reasons."},
+    "no_context": {"marks": 0, "reason": "Merely restates the question, gives no reasons."},
+    "just_transcript": {"marks": 0, "reason": "Point 1 restates the question; point 2 is cut off mid-word ('eagra') before completing a scored term, so no verifiable credit."}
+  },
+  "2016-B-comhra2-q5": {
+    "just_audio": {"marks": 0, "reason": "Sentence trails off, no degree named."},
+    "no_context": {"marks": 0, "reason": "Sentence trails off, no degree named."},
+    "just_transcript": {"marks": 0, "reason": "No specific degree named."}
+  },
+  "2016-C-piosa2-q2": {
+    "just_audio": {"marks": 0, "reason": "Incoherent fragment, no reason given."},
+    "no_context": {"marks": 0, "reason": "States year of death only, no reason for the praise."},
+    "just_transcript": {"marks": 0, "reason": "Correct phrase begins ('níor thug sé a chúl riamh lena') but is cut off before naming 'chultúr' or 'mhuintir', so the priced point is not actually completed."}
+  },
+  "2017-A-fogra2-q2": {
+    "just_audio": {"marks": 0, "reason": "Sentence trails off, no information given."},
+    "no_context": {"marks": 0, "reason": "Gives birthplace, not a listed accepted answer."},
+    "just_transcript": {"marks": 0, "reason": "Cut off mid-word ('láithre') before completing 'láithreoir', so the priced term is not actually supplied."}
+  },
+  "2017-B-comhra2-q1": {
+    "just_audio": {"marks": 0, "reason": "Sentence trails off, no employer named."},
+    "no_context": {"marks": 0, "reason": "No answer given."},
+    "just_transcript": {"marks": 0, "reason": "States her job title, not the employer (AE)."}
+  },
+  "2017-B-comhra2-q5": {
+    "just_audio": {"marks": 0, "reason": "Incoherent fragment, no reason given."},
+    "no_context": {"marks": 0, "reason": "Does not answer the question."},
+    "just_transcript": {"marks": 0, "reason": "About money, not a failure to get a job."}
+  },
+  "2018-A-fogra2-q1": {
+    "just_audio": {"marks": 0, "reason": "Sentence trails off, no club named."},
+    "no_context": {"marks": 0, "reason": "No club named."},
+    "just_transcript": {"marks": 2, "reason": "Exact match: 'Cumann Drámaíochta Ráth Chairn'."}
+  },
+  "2018-B-comhra1-q6": {
+    "just_audio": {"marks": 0, "reason": "No proverb given."},
+    "no_context": {"marks": 0, "reason": "No proverb given."},
+    "just_transcript": {"marks": 0, "reason": "Cut off at a single letter 'N', proverb not actually supplied."}
+  },
+  "2018-B-comhra2-q7": {
+    "just_audio": {"marks": 0, "reason": "No specific information given, just restates context."},
+    "no_context": {"marks": 0, "reason": "No specific information given, just restates context."},
+    "just_transcript": {"marks": 0, "reason": "Vague 'eolas' does not name the required 'nósanna' detail."}
+  },
+  "2019-B-comhra1-q3": {
+    "just_audio": {"marks": 0, "reason": "Lists names, no reasons given."},
+    "no_context": {"marks": 0, "reason": "Incoherent, no reasons given."},
+    "just_transcript": {"marks": 0, "reason": "Merely restates the question, no reasons given."}
+  },
+  "2019-B-comhra2-q1": {
+    "just_audio": {"marks": 0, "reason": "Sentence trails off, no course named."},
+    "no_context": {"marks": 0, "reason": "No course named."},
+    "just_transcript": {"marks": 0, "reason": "Sentence trails off before naming the course."}
+  },
+  "2019-C-piosa1-q3": {
+    "just_audio": {"marks": 0, "reason": "No number given, just repeats the question."},
+    "no_context": {"marks": 0, "reason": "No number given."},
+    "just_transcript": {"marks": 0, "reason": "Names a lighthouse, not the required count."}
+  },
+  "2020-A-fogra1-q1": {
+    "just_audio": {"marks": 0, "reason": "Does not name who issued the announcement."},
+    "no_context": {"marks": 0, "reason": "Merely repeats the question, no answer."},
+    "just_transcript": {"marks": 0, "reason": "Merely repeats the question, no answer."}
+  },
+  "2020-B-comhra1-q5": {
+    "just_audio": {"marks": 0, "reason": "Incoherent fragment, no recommendations given."},
+    "no_context": {"marks": 0, "reason": "Sentence trails off, no recommendations given."},
+    "just_transcript": {"marks": 0, "reason": "No recommendation matching the scheme is given."}
+  },
+  "2021-A-fogra2-q2": {
+    "just_audio": {"marks": 0, "reason": "Merely restates the question, no reason given."},
+    "no_context": {"marks": 0, "reason": "Merely restates the question, no reason given."},
+    "just_transcript": {"marks": 0, "reason": "Cut off mid-word at 'Chog', the required 'Cogadh na Saoirse' is not actually completed."}
+  },
+  "2021-B-comhra1-q1": {
+    "just_audio": {"marks": 0, "reason": "Sentence trails off, no recommendation given."},
+    "no_context": {"marks": 0, "reason": "Sentence trails off, no recommendation given."},
+    "just_transcript": {"marks": 0, "reason": "Sentence trails off, no recommendation given."}
+  },
+  "2022-A-fogra1-q1": {
+    "just_audio": {"marks": 0, "reason": "No answer given."},
+    "no_context": {"marks": 0, "reason": "No answer given."},
+    "just_transcript": {"marks": 0, "reason": "Does not state what TG4 is seeking."}
+  },
+  "2022-B-comhra1-q3": {
+    "just_audio": {"marks": 0, "reason": "No reason given."},
+    "no_context": {"marks": 0, "reason": "No reason given."},
+    "just_transcript": {"marks": 0, "reason": "No reason given."}
+  },
+  "2023-A-fogra1-q3": {
+    "just_audio": {"marks": 0, "reason": "Does not mention discussing the book/work."},
+    "no_context": {"marks": 0, "reason": "No answer given."},
+    "just_transcript": {"marks": 2, "reason": "Matches 'An saothar a phlé' (=2 mharc)."}
+  },
+  "2023-A-fogra1-q4": {
+    "just_audio": {"marks": 0, "reason": "Gives a name, not one of the listed form fields."},
+    "no_context": {"marks": 0, "reason": "No specific fields given."},
+    "just_transcript": {"marks": 0, "reason": "No specific fields given."}
+  },
+  "2024-B-comhra1-q1": {
+    "just_audio": {"marks": 0, "reason": "Incoherent, no information given."},
+    "no_context": {"marks": 0, "reason": "Incoherent, no information given."},
+    "just_transcript": {"marks": 2, "reason": "'teas millteanach' matches the 2-mark tier directly."}
+  },
+  "2024-B-comhra1-q5": {
+    "just_audio": {"marks": 0, "reason": "Incoherent fragment, no answer given."},
+    "no_context": {"marks": 0, "reason": "Does not answer the question."},
+    "just_transcript": {"marks": 2, "reason": "Exact match: 'Gearradh siar ar úsáid breoslaí iontaise'."}
+  },
+  "2025-B-comhra2-q3": {
+    "just_audio": {"marks": 0, "reason": "Vague, gives no specific reason."},
+    "no_context": {"marks": 0, "reason": "Vague, gives no specific reason."},
+    "just_transcript": {"marks": 0, "reason": "Merely restates the question, no specific reason given."}
+  },
+  "2025-C-piosa2-q1": {
+    "just_audio": {"marks": 0, "reason": "Sentence trails off, no organisation named."},
+    "no_context": {"marks": 0, "reason": "No organisation named."},
+    "just_transcript": {"marks": 0, "reason": "'Ghíon na Gaeil' does not match 'Gael Linn'."}
+  }
+}

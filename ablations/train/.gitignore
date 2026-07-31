@@ -1,0 +1,9 @@
+output/
+hf_cache/
+*.sqsh
+qomhra-venv/
+.wandb_key
+__pycache__/
+*.pyc
+wandb/
+outputs/

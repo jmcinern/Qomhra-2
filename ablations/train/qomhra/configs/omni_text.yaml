@@ -1,0 +1,33 @@
+# Ablation 1 — "Just Text": text + ASR transcripts, freeze all but the LLM.
+#
+# Data is the Omni-tokenized Irish text corpus. The ASR shard (conversations_ga) is
+# listed separately from the other sources so the mix is explicit and so the pure-text
+# sources can be swapped out without silently keeping the transcripts.
+defaults:
+  - base
+  - _self_
+
+task:
+  modality: text
+
+freeze:
+  mode: llm_only          # LLM decoder + lm_head + embeddings; audio tower frozen
+
+data:
+  source: real
+  # One shard per parquet row-group, so each source is a glob. Listing the sources
+  # explicitly (rather than shards/*.bin) keeps the mix visible and lets the ASR
+  # transcripts be dropped without touching the loader.
+  text_bin:
+    - ${paths.tokens}/shards/hplt3_mono__rg*.bin
+    - ${paths.tokens}/shards/finepdfs__rg*.bin
+    - ${paths.tokens}/shards/corpas_full_clean__rg*.bin
+    - ${paths.tokens}/shards/nce__rg*.bin
+    - ${paths.tokens}/shards/uni-archives__rg*.bin
+    - ${paths.tokens}/shards/oireachtas_ga__rg*.bin
+    # ASR transcripts of the speech corpus (capitalisation + punctuation restored) —
+    # part of the Text ablation per README.
+    - ${paths.tokens}/shards/conversations_capr__rg*.bin
+
+logging:
+  wandb_run_name: ablation-text

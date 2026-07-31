@@ -1,0 +1,45 @@
+# Before/after prompts. Format:  <lang>:<fmt>: <prompt>
+#   lang = ga | en      fmt = raw | chat
+# Blank lines and #-comments ignored.
+#
+# raw  = base-model continuation, fed verbatim (no template).
+# chat = instruction, rendered through the chat template.
+# Both axes matter: Qwen2.5-Omni ships instruct-tuned and we continued-pretrain it on
+# RAW text, so the chat rows measure whether CPT ate the instruction-following. That is
+# a real risk and a result either way.
+#
+# English is not a comparison, it is the CONTROL: same model, prompts and decoding, so
+# any Irish failure is Irish-specific rather than the rig. Measured on the baseline,
+# every Irish cell sits at the floor and every English cell at ceiling:
+#   ga raw  -> degenerate loops 3/3      en raw  -> fluent
+#   ga chat -> never emits <|im_end|>    en chat -> correct, stops in 9 tokens
+
+# --- Irish, raw continuation ---
+ga:raw: Is é an fáth a bhfuil an Ghaeilge tábhachtach ná
+ga:raw: Bhí an aimsir go hálainn inné, mar sin chuaigh mé
+ga:raw: Tá Baile Átha Cliath ar cheann de na cathracha is
+ga:raw: Nuair a bhí mé óg, chaith mé an samhradh i gConamara ag
+ga:raw: An rud is mó a thaitníonn liom faoin gceol traidisiúnta ná
+ga:raw: Dúirt an tAire go bhfuil an Rialtas chun
+ga:raw: Seo é an nuacht. Tá tuairisc nua foilsithe ag
+ga:raw: Ar maidin, shiúil sí síos an bóthar go dtí an siopa agus
+
+# --- Irish, chat ---
+ga:chat: Cad é príomhchathair na hÉireann?
+ga:chat: Inis dom faoi stair na Gaeilge in Éirinn.
+ga:chat: Cén fáth a bhfuil an Ghaeltacht tábhachtach?
+ga:chat: Scríobh gearrscéal faoi iascaire a fuair rud aisteach san fharraige.
+
+# --- English, raw (control) ---
+en:raw: The Irish language is spoken today mainly in
+en:raw: Dublin is the capital of Ireland, and its main
+en:raw: The most important thing about learning a new language is
+en:raw: Yesterday the government announced that it would
+
+# --- English, chat (control) ---
+en:chat: What is the capital city of Ireland?
+en:chat: Tell me about the history of the Irish language.
+en:chat: Write a short story about a fisherman who found something strange at sea.
+
+# --- Code-switching (the ASR-transcript data contains it) ---
+ga:raw: Bhí mé ag caint le my friend from Galway agus dúirt sé

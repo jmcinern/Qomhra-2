@@ -1,0 +1,167 @@
+{
+  "2013-A-fogra2-q3": {
+    "just_audio": {"marks": 0, "reason": "Garbled, no answer given."},
+    "no_context": {"marks": 0, "reason": "'Ceolchoirm agus damhsa' not in scheme."},
+    "just_transcript": {"marks": 2, "reason": "'Oíche eolais' matches 2-mark answer."}
+  },
+  "2013-A-fogra2-q4": {
+    "just_audio": {"marks": 0, "reason": "Garbled, no coherent answer."},
+    "no_context": {"marks": 0, "reason": "Premises renovation not in scheme."},
+    "just_transcript": {"marks": 2, "reason": "Matches 'foinsí nua uisce a aimsiú i dtíortha na hAfraice'."}
+  },
+  "2013-B-comhra1-q6": {
+    "just_audio": {"marks": 0, "reason": "Cut off before naming the actual problem."},
+    "no_context": {"marks": 0, "reason": "'Ualach oibre' not in scheme."},
+    "just_transcript": {"marks": 2, "reason": "'Costas an lóistín' exact match."}
+  },
+  "2014-A-fogra1-q1": {
+    "just_audio": {"marks": 0, "reason": "Doesn't mention 'rúnaí'."},
+    "no_context": {"marks": 0, "reason": "Doesn't mention 'rúnaí'."},
+    "just_transcript": {"marks": 2, "reason": "'Rúnaí i Roinn na Gaeilge' exact match."}
+  },
+  "2014-C-piosa1-q2": {
+    "just_audio": {"marks": 0, "reason": "Just restates the question, no answer."},
+    "no_context": {"marks": 0, "reason": "'Daoine óga' not in scheme."},
+    "just_transcript": {"marks": 0, "reason": "Answer truncated mid-word ('phobal na'); target word not supplied so cannot credit."}
+  },
+  "2014-C-piosa2-q2": {
+    "just_audio": {"marks": 0, "reason": "No specific damage detail given."},
+    "no_context": {"marks": 2, "reason": "'100,000 duine gan dídean' conveys the large-scale homelessness point."},
+    "just_transcript": {"marks": 2, "reason": "'Scriosadh a lán tithe' exact match."}
+  },
+  "2015-A-fogra2-q3": {
+    "just_audio": {"marks": 0, "reason": "'Ranganna damhsa' not in scheme."},
+    "no_context": {"marks": 0, "reason": "'Ceolchoirm' not in scheme."},
+    "just_transcript": {"marks": 2, "reason": "'Péintéireacht' matches 2-mark answer."}
+  },
+  "2015-B-comhra1-q4": {
+    "just_audio": {"marks": 0, "reason": "About online caution, not environment/climate."},
+    "no_context": {"marks": 0, "reason": "Empty answer."},
+    "just_transcript": {"marks": 0, "reason": "'Feachtas glas' impact stated but not the specific point (environment/climate change)."}
+  },
+  "2015-C-piosa2-q2": {
+    "just_audio": {"marks": 0, "reason": "'Nuacht TG4' incorrect."},
+    "no_context": {"marks": 0, "reason": "'Nuacht TG4' incorrect."},
+    "just_transcript": {"marks": 2, "reason": "'Tuairisc.ie' exact match."}
+  },
+  "2016-B-comhra2-q3": {
+    "just_audio": {"marks": 2, "reason": "'Caighdeán imeartha an-ard' / cluichí suimiúla equates to 'imirt ar fheabhas' (2). Second point (audience taken with players) not in scheme."},
+    "no_context": {"marks": 1, "reason": "'Cluichí go maith' is a weaker version of the games-were-good point (1-mark tier); weather point not in scheme."},
+    "just_transcript": {"marks": 4, "reason": "Eagraithe go han-mhaith, imirt ar fheabhas, and lucht leanúna an-chairdiúil all match; capped at 2 blanks (4 marks)."}
+  },
+  "2016-B-comhra2-q5": {
+    "just_audio": {"marks": 0, "reason": "Wrong degree (Irish and English)."},
+    "no_context": {"marks": 0, "reason": "Wrong degree (Irish and History)."},
+    "just_transcript": {"marks": 2, "reason": "'Innealtóireacht ríomhaireachta' exact match."}
+  },
+  "2016-C-piosa2-q2": {
+    "just_audio": {"marks": 0, "reason": "Different content (what he did for Irish/Ireland), not the 'never turned his back' point."},
+    "no_context": {"marks": 0, "reason": "Different content, not in scheme."},
+    "just_transcript": {"marks": 2, "reason": "Matches 'Níor thug sé a chúl riamh lena chultúr ná lena mhuintir féin'."}
+  },
+  "2017-A-fogra2-q2": {
+    "just_audio": {"marks": 0, "reason": "Lives in Dublin — not in scheme."},
+    "no_context": {"marks": 0, "reason": "Wrong info (Minister for Education)."},
+    "just_transcript": {"marks": 2, "reason": "'Is láithreoir ar TG4 í' exact match."}
+  },
+  "2017-B-comhra2-q1": {
+    "just_audio": {"marks": 0, "reason": "'Comhlacht teicneolaíochta' not in scheme."},
+    "no_context": {"marks": 0, "reason": "'An Coimisiún Eorpach' is a different body than 'An tAontas Eorpach/AE'."},
+    "just_transcript": {"marks": 0, "reason": "'Is aistritheoir í' does not answer with whom she works."}
+  },
+  "2017-B-comhra2-q5": {
+    "just_audio": {"marks": 0, "reason": "Going back to Ireland — not the job-loss reason."},
+    "no_context": {"marks": 0, "reason": "Couldn't go swimming — not in scheme."},
+    "just_transcript": {"marks": 2, "reason": "'Theip air post a fháil i ngach óstán ar an mbaile' matches scheme."}
+  },
+  "2018-A-fogra2-q1": {
+    "just_audio": {"marks": 0, "reason": "Wrong place name (Chois Fharraige)."},
+    "no_context": {"marks": 0, "reason": "No specific club name given."},
+    "just_transcript": {"marks": 2, "reason": "'Cumann Drámaíochta Ráth Chairn' exact match."}
+  },
+  "2018-B-comhra1-q6": {
+    "just_audio": {"marks": 0, "reason": "Cut off before naming the proverb."},
+    "no_context": {"marks": 0, "reason": "Cut off before naming the proverb."},
+    "just_transcript": {"marks": 0, "reason": "'Is fíor cinnte' does not name the proverb."}
+  },
+  "2018-B-comhra2-q7": {
+    "just_audio": {"marks": 0, "reason": "Nonsensical repeat, no answer."},
+    "no_context": {"marks": 0, "reason": "About local events, not community customs."},
+    "just_transcript": {"marks": 2, "reason": "Matches 'Nósanna maireachtála na bpobal éagsúil atá sa tír seo'."}
+  },
+  "2019-B-comhra1-q3": {
+    "just_audio": {"marks": 0, "reason": "Vague repetition, no distinct listed reason given."},
+    "no_context": {"marks": 0, "reason": "Degenerate answer ('1.')."},
+    "just_transcript": {"marks": 2, "reason": "First point matches healthy-outdoor-activity reason (2 marks); second point (economic benefit) not in scheme, so only 1 blank credited."}
+  },
+  "2019-B-comhra2-q1": {
+    "just_audio": {"marks": 0, "reason": "Garbled, no answer."},
+    "no_context": {"marks": 0, "reason": "Wrong course (English)."},
+    "just_transcript": {"marks": 2, "reason": "'Cúrsa Dlí agus Gnó' exact match."}
+  },
+  "2019-C-piosa1-q3": {
+    "just_audio": {"marks": 0, "reason": "Wrong number (11)."},
+    "no_context": {"marks": 0, "reason": "Wrong number (10)."},
+    "just_transcript": {"marks": 2, "reason": "'12' exact match."}
+  },
+  "2020-A-fogra1-q1": {
+    "just_audio": {"marks": 0, "reason": "Wrong body (Roinn Oideachais)."},
+    "no_context": {"marks": 0, "reason": "Wrong body (Aire Oideachais)."},
+    "just_transcript": {"marks": 2, "reason": "'RTÉ Raidió na Gaeltachta' exact match."}
+  },
+  "2020-B-comhra1-q5": {
+    "just_audio": {"marks": 0, "reason": "Vague restatement, no specific listed advice."},
+    "no_context": {"marks": 0, "reason": "Degenerate placeholders, no content."},
+    "just_transcript": {"marks": 0, "reason": "Only restates questions, not actual recommendations."}
+  },
+  "2021-A-fogra2-q2": {
+    "just_audio": {"marks": 0, "reason": "Encouraging writers generally — not the War of Independence commemoration."},
+    "no_context": {"marks": 0, "reason": "Developing writing skills — not in scheme."},
+    "just_transcript": {"marks": 2, "reason": "Matches 'Comóradh a dhéanamh ar Chogadh na Saoirse'."}
+  },
+  "2021-B-comhra1-q1": {
+    "just_audio": {"marks": 0, "reason": "States the opposite (allowed to travel abroad)."},
+    "no_context": {"marks": 0, "reason": "States the opposite (allowed to travel again)."},
+    "just_transcript": {"marks": 2, "reason": "Matches 'Gan taisteal thar lear'."}
+  },
+  "2022-A-fogra1-q1": {
+    "just_audio": {"marks": 0, "reason": "'An Ghaeilge a chur chun cinn' not in scheme."},
+    "no_context": {"marks": 0, "reason": "Fluent Irish speaker volunteers — not matching 'láithreoir spóirt'."},
+    "just_transcript": {"marks": 2, "reason": "'Láithreoir spóirt' exact match."}
+  },
+  "2022-B-comhra1-q3": {
+    "just_audio": {"marks": 0, "reason": "Vague ('an-tógtha leis'), no specific reason."},
+    "no_context": {"marks": 0, "reason": "Vague ('an-mhaith'), no specific reason."},
+    "just_transcript": {"marks": 2, "reason": "'Chuir sé ar a chompord é' matches scheme."}
+  },
+  "2023-A-fogra1-q3": {
+    "just_audio": {"marks": 0, "reason": "Cut off before stating the actual opportunity."},
+    "no_context": {"marks": 0, "reason": "Cut off before stating the actual opportunity."},
+    "just_transcript": {"marks": 2, "reason": "'Leabhar na míosa a phlé' matches scheme."}
+  },
+  "2023-A-fogra1-q4": {
+    "just_audio": {"marks": 0, "reason": "Company name/address not in scheme."},
+    "no_context": {"marks": 0, "reason": "Company name/address not in scheme."},
+    "just_transcript": {"marks": 4, "reason": "'Ainm úsáideora' and 'Pasfhocal' both match, 2 blanks x 2 marks."}
+  },
+  "2024-B-comhra1-q1": {
+    "just_audio": {"marks": 2, "reason": "'An-ard' matches the 2-mark 'teas millteanach/an-ard' tier."},
+    "no_context": {"marks": 1, "reason": "'Chomh hard le 40 céim' states the temperature at 40°C, matching the 1-mark tier rather than 'os cionn' (above) 40."},
+    "just_transcript": {"marks": 2, "reason": "'Os cionn daichead céim Celsius' exact match to 2-mark tier."}
+  },
+  "2024-B-comhra1-q5": {
+    "just_audio": {"marks": 0, "reason": "Vague statement of importance, no specific action named."},
+    "no_context": {"marks": 0, "reason": "Vague statement of importance, no specific action named."},
+    "just_transcript": {"marks": 2, "reason": "'Gearradh siar ar úsáid breoslaí iontaise' exact match."}
+  },
+  "2025-B-comhra2-q3": {
+    "just_audio": {"marks": 0, "reason": "'Ag obair ón mbaile' not in scheme."},
+    "no_context": {"marks": 0, "reason": "Just restates the question, no specific reason."},
+    "just_transcript": {"marks": 0, "reason": "'Airíonn sí uaithi an baile' does not state any of the scheme's listed reasons (video calls, apps, virtual presence)."}
+  },
+  "2025-C-piosa2-q1": {
+    "just_audio": {"marks": 0, "reason": "Wrong organisation (An Chartlann Náisiúnta)."},
+    "no_context": {"marks": 0, "reason": "Wrong organisation (An Chartlann Náisiúnta)."},
+    "just_transcript": {"marks": 2, "reason": "'Gael Linn' exact match."}
+  }
+}

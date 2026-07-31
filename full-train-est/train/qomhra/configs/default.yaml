@@ -23,6 +23,12 @@ model:
   # blocker (then drop to [efficient] or [flash, efficient, math]).
   sdpa_backends: null              # e.g. [flash, efficient]
   gradient_checkpointing: true
+  # Liger fused kernels (RMSNorm/RoPE/SwiGLU + fused linear cross-entropy). The
+  # fused CE skips materialising the 152,960-vocab logits -> frees ~10 GB and folds
+  # LM-head+loss into one kernel. Needs liger-kernel in the overlay.
+  use_liger: false
+  # torch.compile the FSDP-wrapped model (A/B; can be fragile on ROCm).
+  compile: false
   # Combined vocab: Qwen3 text + mHuBERT audio units + a few specials, padded.
   text_vocab: 151936               # Qwen3-8B native vocab
   audio_vocab: 1000                # mHuBERT-147 units [0, 1000)
@@ -63,6 +69,9 @@ fsdp:
   # all-reduce/step across nodes. Single node: the two are identical (1 node = 1
   # shard group). FSDP1 auto-builds the intra/inter-node groups for HYBRID_SHARD.
   sharding_strategy: full_shard
+  # Gradient reduction dtype: fp32 (safe default) | bf16 (halves inter-node
+  # all-reduce volume, small numerical-stability cost).
+  reduce_dtype: fp32
 
 logging:
   wandb: true

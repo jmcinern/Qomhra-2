@@ -1,0 +1,167 @@
+{
+  "2013-A-fogra2-q3": {
+    "just_audio": {"marks": 0, "reason": "Gibberish, no answer given"},
+    "no_context": {"marks": 0, "reason": "Truncated, no substantive answer"},
+    "just_transcript": {"marks": 0, "reason": "Restates question only, no answer"}
+  },
+  "2013-A-fogra2-q4": {
+    "just_audio": {"marks": 0, "reason": "Repetitive gibberish, no answer"},
+    "no_context": {"marks": 0, "reason": "Repetitive gibberish, no answer"},
+    "just_transcript": {"marks": 0, "reason": "Says money was collected by an authority; does not mention water sources in Africa as required"}
+  },
+  "2013-B-comhra1-q6": {
+    "just_audio": {"marks": 0, "reason": "No answer, incoherent"},
+    "no_context": {"marks": 0, "reason": "No answer, incoherent"},
+    "just_transcript": {"marks": 1, "reason": "Gives 'an lóistín' (accommodation) alone, priced at 1 mark"}
+  },
+  "2014-A-fogra1-q1": {
+    "just_audio": {"marks": 0, "reason": "No answer, incoherent"},
+    "no_context": {"marks": 0, "reason": "No answer, incoherent"},
+    "just_transcript": {"marks": 2, "reason": "Correctly gives 'Rúnaí i Roinn na Gaeilge'"}
+  },
+  "2014-C-piosa1-q2": {
+    "just_audio": {"marks": 0, "reason": "Repetitive gibberish, no answer"},
+    "no_context": {"marks": 0, "reason": "States wrong/unlisted content about a national broadcaster"},
+    "just_transcript": {"marks": 2, "reason": "Correctly gives 'pobal na Gaeilge i mBaile Átha Cliath agus ar fud Chúige Laighean'"}
+  },
+  "2014-C-piosa2-q2": {
+    "just_audio": {"marks": 0, "reason": "Gibberish, no answer"},
+    "no_context": {"marks": 0, "reason": "Just lists years, no answer"},
+    "just_transcript": {"marks": 0, "reason": "Says houses were 'built' (Tógáil), opposite meaning of 'destroyed'; homelessness point incomplete/garbled"}
+  },
+  "2015-A-fogra2-q3": {
+    "just_audio": {"marks": 0, "reason": "Restates question, no answer"},
+    "no_context": {"marks": 0, "reason": "List of numbers, no answer"},
+    "just_transcript": {"marks": 0, "reason": "Vague 'wide range of events', no specific event named"}
+  },
+  "2015-B-comhra1-q4": {
+    "just_audio": {"marks": 0, "reason": "No answer, incoherent"},
+    "no_context": {"marks": 0, "reason": "No answer, list of numbers"},
+    "just_transcript": {"marks": 0, "reason": "Mentions a 'green committee' but no specific point (environment/climate change) is stated"}
+  },
+  "2015-C-piosa2-q2": {
+    "just_audio": {"marks": 0, "reason": "No answer, restates question"},
+    "no_context": {"marks": 0, "reason": "No answer, restates question"},
+    "just_transcript": {"marks": 2, "reason": "Correctly gives 'Tuairisc.ie'"}
+  },
+  "2016-B-comhra2-q3": {
+    "just_audio": {"marks": 0, "reason": "Restates question, no reasons given"},
+    "no_context": {"marks": 0, "reason": "List of numbers, no answer"},
+    "just_transcript": {"marks": 0, "reason": "Mentions vague 'influence' (tionchar), not a listed reason such as organisation or friendly fans"}
+  },
+  "2016-B-comhra2-q5": {
+    "just_audio": {"marks": 0, "reason": "Gives a year, not the degree; no mention of computer engineering"},
+    "no_context": {"marks": 0, "reason": "No degree named"},
+    "just_transcript": {"marks": 0, "reason": "Gives a year, not the degree name"}
+  },
+  "2016-C-piosa2-q2": {
+    "just_audio": {"marks": 0, "reason": "Gives unrelated biographical facts, no reason for the praise stated"},
+    "no_context": {"marks": 0, "reason": "Gives unrelated biographical facts, no reason for the praise stated"},
+    "just_transcript": {"marks": 0, "reason": "Talks about a visitor centre, not the required point about culture/his own people"}
+  },
+  "2017-A-fogra2-q2": {
+    "just_audio": {"marks": 0, "reason": "Incomplete, no substantive point"},
+    "no_context": {"marks": 0, "reason": "Incomplete, no substantive point"},
+    "just_transcript": {"marks": 2, "reason": "Correctly states she will open the information day ('cuirfidh sí tús leis an lá eolais')"}
+  },
+  "2017-B-comhra2-q1": {
+    "just_audio": {"marks": 0, "reason": "No answer to 'with whom', restates question"},
+    "no_context": {"marks": 0, "reason": "No answer to 'with whom'"},
+    "just_transcript": {"marks": 0, "reason": "Gives 'Aistritheoir' (translator), not the EU as required"}
+  },
+  "2017-B-comhra2-q5": {
+    "just_audio": {"marks": 0, "reason": "Gibberish, no answer"},
+    "no_context": {"marks": 0, "reason": "Gibberish, no reason given"},
+    "just_transcript": {"marks": 0, "reason": "Vague, does not state he failed to get a summer job"}
+  },
+  "2018-A-fogra2-q1": {
+    "just_audio": {"marks": 0, "reason": "Restates question, no answer"},
+    "no_context": {"marks": 0, "reason": "Gibberish, no answer"},
+    "just_transcript": {"marks": 2, "reason": "Correctly gives 'Cumann Drámaíochta Ráth Chairn'"}
+  },
+  "2018-B-comhra1-q6": {
+    "just_audio": {"marks": 0, "reason": "No answer, incoherent"},
+    "no_context": {"marks": 0, "reason": "No answer, incoherent"},
+    "just_transcript": {"marks": 2, "reason": "Correctly gives the proverb 'Ní neart go cur le chéile'"}
+  },
+  "2018-B-comhra2-q7": {
+    "just_audio": {"marks": 0, "reason": "Gibberish, no answer"},
+    "no_context": {"marks": 0, "reason": "Incoherent, no relevant content"},
+    "just_transcript": {"marks": 0, "reason": "Restates question, no specific information given"}
+  },
+  "2019-B-comhra1-q3": {
+    "just_audio": {"marks": 0, "reason": "Repetitive gibberish, no answer"},
+    "no_context": {"marks": 0, "reason": "List of numbers, no answer"},
+    "just_transcript": {"marks": 0, "reason": "Restates the question, no reasons given"}
+  },
+  "2019-B-comhra2-q1": {
+    "just_audio": {"marks": 0, "reason": "Gives a year, not the course"},
+    "no_context": {"marks": 0, "reason": "No course named"},
+    "just_transcript": {"marks": 2, "reason": "Correctly gives 'Dlí agus Gnó'"}
+  },
+  "2019-C-piosa1-q3": {
+    "just_audio": {"marks": 0, "reason": "No number given"},
+    "no_context": {"marks": 0, "reason": "Gives '15th century', not the required count of lighthouses"},
+    "just_transcript": {"marks": 0, "reason": "Names a lighthouse but gives no number"}
+  },
+  "2020-A-fogra1-q1": {
+    "just_audio": {"marks": 0, "reason": "No clear answer, incoherent"},
+    "no_context": {"marks": 0, "reason": "No answer, incoherent"},
+    "just_transcript": {"marks": 2, "reason": "Correctly gives 'RTÉ Raidió na Gaeltachta'"}
+  },
+  "2020-B-comhra1-q5": {
+    "just_audio": {"marks": 0, "reason": "Restates question, no recommendations given"},
+    "no_context": {"marks": 0, "reason": "List of letters, no answer"},
+    "just_transcript": {"marks": 0, "reason": "Mentions regular exercise, which is not a listed accepted point"}
+  },
+  "2021-A-fogra2-q2": {
+    "just_audio": {"marks": 0, "reason": "Restates question, no reason given"},
+    "no_context": {"marks": 0, "reason": "No reason given, incoherent"},
+    "just_transcript": {"marks": 2, "reason": "Correctly gives 'chun comóradh a dhéanamh ar Chogadh na Saoirse'"}
+  },
+  "2021-B-comhra1-q1": {
+    "just_audio": {"marks": 0, "reason": "Restates question, no specific recommendation given"},
+    "no_context": {"marks": 0, "reason": "Restates question, no specific recommendation given"},
+    "just_transcript": {"marks": 0, "reason": "Circular/incomplete, no specific recommendation stated"}
+  },
+  "2022-A-fogra1-q1": {
+    "just_audio": {"marks": 0, "reason": "Repetitive gibberish, no answer"},
+    "no_context": {"marks": 0, "reason": "Gives unrelated historical facts about TG4, no answer"},
+    "just_transcript": {"marks": 0, "reason": "Garbled; does not state that a presenter is being sought"}
+  },
+  "2022-B-comhra1-q3": {
+    "just_audio": {"marks": 0, "reason": "Repetitive gibberish, no reason given"},
+    "no_context": {"marks": 0, "reason": "No reason given for the praise"},
+    "just_transcript": {"marks": 0, "reason": "Unrelated dialogue, no answer to the question"}
+  },
+  "2023-A-fogra1-q3": {
+    "just_audio": {"marks": 0, "reason": "Gibberish, no answer"},
+    "no_context": {"marks": 0, "reason": "Gibberish, no answer"},
+    "just_transcript": {"marks": 0, "reason": "No specific opportunity named"}
+  },
+  "2023-A-fogra1-q4": {
+    "just_audio": {"marks": 0, "reason": "Restates question, no items given"},
+    "no_context": {"marks": 0, "reason": "List of numbers, no answer"},
+    "just_transcript": {"marks": 0, "reason": "Gives a website address, not the required form fields"}
+  },
+  "2024-B-comhra1-q1": {
+    "just_audio": {"marks": 0, "reason": "Gibberish, no answer"},
+    "no_context": {"marks": 0, "reason": "Gibberish, no answer"},
+    "just_transcript": {"marks": 0, "reason": "Repeats 'Aon scéal' with no information about the heatwave"}
+  },
+  "2024-B-comhra1-q5": {
+    "just_audio": {"marks": 0, "reason": "Gibberish, no answer"},
+    "no_context": {"marks": 0, "reason": "No specific answer given"},
+    "just_transcript": {"marks": 2, "reason": "Correctly gives 'Gearradh siar ar úsáid breoslaí iontaise'"}
+  },
+  "2025-B-comhra2-q3": {
+    "just_audio": {"marks": 0, "reason": "Repetitive gibberish, no answer"},
+    "no_context": {"marks": 0, "reason": "Repetitive nonsense, no specific reason given"},
+    "just_transcript": {"marks": 2, "reason": "Correctly states she keeps in regular contact via video calls ('ghlaonna físe')"}
+  },
+  "2025-C-piosa2-q1": {
+    "just_audio": {"marks": 0, "reason": "Incomplete, no organisation named"},
+    "no_context": {"marks": 0, "reason": "Incomplete, no organisation named"},
+    "just_transcript": {"marks": 2, "reason": "Correctly gives 'Gael Linn'"}
+  }
+}

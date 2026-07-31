@@ -1,0 +1,36 @@
+# Ablation 3 — "Text + Speech": text + ASR transcripts + speech, train everything.
+#
+# Batches are pure-text OR pure-audio (there is no aligned audio/text pairing in this
+# corpus — alignment is out of scope for the ablations). `text_step_frac` sets the
+# fraction of global steps that are text; the schedule is seeded and rank-independent,
+# so every rank runs the same modality on the same step (FSDP requires it — see data.py).
+defaults:
+  - base
+  - _self_
+
+model:
+  # This ablation alternates text and audio steps, and the audio steps are the ones that
+  # OOM without checkpointing (they run eager attention — see omni_speech.yaml). The
+  # setting is global to the run, so the audio steps decide it: true.
+  gradient_checkpointing: true
+
+task:
+  modality: both
+  text_step_frac: 0.5
+
+freeze:
+  mode: all
+
+data:
+  source: mixed
+  text_bin:
+    - ${paths.tokens}/shards/hplt3_mono__rg*.bin
+    - ${paths.tokens}/shards/finepdfs__rg*.bin
+    - ${paths.tokens}/shards/corpas_full_clean__rg*.bin
+    - ${paths.tokens}/shards/nce__rg*.bin
+    - ${paths.tokens}/shards/uni-archives__rg*.bin
+    - ${paths.tokens}/shards/oireachtas_ga__rg*.bin
+    - ${paths.tokens}/shards/conversations_capr__rg*.bin
+
+logging:
+  wandb_run_name: ablation-text-speech
