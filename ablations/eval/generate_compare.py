@@ -73,7 +73,10 @@ def generate(thinker, proc, prompts, device, max_new_tokens, temperature):
     # stop token: it runs to max_new_tokens, decoding past <|im_end|> into a self-primed
     # continuation loop, and skip_special_tokens hides the marker so it reads as the
     # model rambling. tok.eos_token_id is correct (151645); generate never consults it.
-    eos_id = tok.convert_tokens_to_ids("<|im_end|>")
+    stop_ids = {
+        token: tok.convert_tokens_to_ids(token)
+        for token in ("<|im_end|>", "<|endoftext|>")
+    }
     rows = []
     for lang, fmt, prompt in prompts:
         if fmt == "chat":
@@ -88,15 +91,23 @@ def generate(thinker, proc, prompts, device, max_new_tokens, temperature):
             max_new_tokens=max_new_tokens,
             do_sample=temperature > 0,
             temperature=temperature or None,
-            eos_token_id=eos_id,
+            eos_token_id=list(stop_ids.values()),
             pad_token_id=tok.pad_token_id,
         )
         new = gen[0][enc.input_ids.shape[1]:]
         body = tok.decode(new, skip_special_tokens=True)
+        hits = [
+            (int(pos[0]), token)
+            for token, token_id in stop_ids.items()
+            if (pos := (new == token_id).nonzero(as_tuple=False).flatten()).numel()
+        ]
+        termination_token = min(hits)[1] if hits else None
         rows.append({
             "text": body,
             "n_tokens": int(new.shape[0]),
-            "terminated": bool((new == eos_id).any()),
+            "terminated": termination_token is not None,
+            "termination_token": termination_token,
+            "chat_terminated": termination_token == "<|im_end|>",
             "degenerate": is_degenerate(body),
         })
     return rows
@@ -136,7 +147,8 @@ def summarise(f, prompts, before, after):
         c["ta"] += a["terminated"]
         c["db"] += b["degenerate"]
         c["da"] += a["degenerate"]
-    f.write("\n" + "=" * 78 + "\nSUMMARY  (terminated = emitted <|im_end|>; "
+    f.write("\n" + "=" * 78 + "\nSUMMARY  (terminated = emitted <|im_end|> or "
+            "<|endoftext|>; "
             "degenerate = repeated 4-gram)\n" + "=" * 78 + "\n")
     f.write(f"{'cell':10s} {'n':>3s} {'term before':>12s} {'term after':>11s} "
             f"{'degen before':>13s} {'degen after':>12s}\n")

@@ -1,0 +1,11 @@
+eval,condition,metric,direction,base_chat,base_raw,delta,n,decode_rows,natural_eos,sentinel_echo
+fleurs,asr_ga,wer,lower_better,219.03,130.38,-88.65,34,32,25,5
+fleurs,asr_en,wer,lower_better,3.77,20.42,16.65,34,34,30,12
+fleurs,text_ga2en,chrf++,higher_better,27.41,25.26,-2.15,34,34,0,0
+fleurs,text_en2ga,chrf++,higher_better,15.61,13.11,-2.5,34,34,0,0
+fleurs,st_ga2en,chrf++,higher_better,16.21,14.52,-1.69,34,34,4,0
+fleurs,st_en2ga,chrf++,higher_better,12.63,10.44,-2.19,34,34,5,0
+iwslt,ga_speech_to_en_text,routed_chrf++,higher_better,13.11,14.69,1.58,112,112,82,91
+cluas,just_audio,official_marks_of_74,higher_better,0,0,0,33,87,0,8
+cluas,no_context,official_marks_of_74,higher_better,0,0,0,33,33,0,0
+cluas,just_transcript,official_marks_of_74,higher_better,33,25,-8,33,33,0,0

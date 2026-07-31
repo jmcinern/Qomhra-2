@@ -1,0 +1,167 @@
+{
+  "2013-A-fogra2-q3": {
+    "just_audio": {"marks": 0, "reason": "Garbled, no relevant content"},
+    "no_context": {"marks": 0, "reason": "Garbled, no relevant content"},
+    "just_transcript": {"marks": 0, "reason": "Does not state 'oíche eolais' or equivalent"}
+  },
+  "2013-A-fogra2-q4": {
+    "just_audio": {"marks": 0, "reason": "No meaningful answer, just restates question"},
+    "no_context": {"marks": 0, "reason": "Garbled, no relevant content"},
+    "just_transcript": {"marks": 0, "reason": "No mention of Africa/water; nonsensical"}
+  },
+  "2013-B-comhra1-q6": {
+    "just_audio": {"marks": 0, "reason": "No relevant content"},
+    "no_context": {"marks": 0, "reason": "Cut off, no answer given"},
+    "just_transcript": {"marks": 1, "reason": "Gives 'an lóistín' only, the 1-mark partial answer"}
+  },
+  "2014-A-fogra1-q1": {
+    "just_audio": {"marks": 0, "reason": "No relevant content"},
+    "no_context": {"marks": 0, "reason": "No relevant content"},
+    "just_transcript": {"marks": 2, "reason": "Exact match 'Rúnaí i Roinn na Gaeilge'"}
+  },
+  "2014-C-piosa1-q2": {
+    "just_audio": {"marks": 0, "reason": "No relevant content"},
+    "no_context": {"marks": 0, "reason": "'Rádóir' is not the scheme's target group"},
+    "just_transcript": {"marks": 0, "reason": "'Ba Gaeilge' too vague/degenerate, does not state target audience"}
+  },
+  "2014-C-piosa2-q2": {
+    "just_audio": {"marks": 0, "reason": "No relevant content"},
+    "no_context": {"marks": 0, "reason": "References unrelated English term, no damage detail"},
+    "just_transcript": {"marks": 0, "reason": "Nonsensical, does not describe typhoon damage"}
+  },
+  "2015-A-fogra2-q3": {
+    "just_audio": {"marks": 0, "reason": "No relevant content"},
+    "no_context": {"marks": 0, "reason": "Restates question, no specific event named"},
+    "just_transcript": {"marks": 2, "reason": "'Péintéireacht' exact match"}
+  },
+  "2015-B-comhra1-q4": {
+    "just_audio": {"marks": 0, "reason": "Restates question only"},
+    "no_context": {"marks": 0, "reason": "Restates question only"},
+    "just_transcript": {"marks": 0, "reason": "'Athchúrsáil' (recycling) is not a point listed in the scheme"}
+  },
+  "2015-C-piosa2-q2": {
+    "just_audio": {"marks": 0, "reason": "Cut off, no name given"},
+    "no_context": {"marks": 0, "reason": "Cut off, no name given"},
+    "just_transcript": {"marks": 2, "reason": "'Tuairisc.ie' exact match"}
+  },
+  "2016-B-comhra2-q3": {
+    "just_audio": {"marks": 0, "reason": "Restates question, no reasons given"},
+    "no_context": {"marks": 0, "reason": "Restates question, no reasons given"},
+    "just_transcript": {"marks": 2, "reason": "Restates question (no credit) plus 'Bhí sé eagraithe go han-mhaith' matches one 2-mark reason; only one distinct point given"}
+  },
+  "2016-B-comhra2-q5": {
+    "just_audio": {"marks": 0, "reason": "No course named"},
+    "no_context": {"marks": 0, "reason": "Wrong/invented detail (Trinity College), no correct course named"},
+    "just_transcript": {"marks": 0, "reason": "Does not name 'Innealtóireacht ríomhaireachta'"}
+  },
+  "2016-C-piosa2-q2": {
+    "just_audio": {"marks": 0, "reason": "No relevant content"},
+    "no_context": {"marks": 0, "reason": "No reason given, only unrelated date"},
+    "just_transcript": {"marks": 2, "reason": "Exact match 'níor thug sé a chúl riamh lena chultúr ná lena mhuintir féin'"}
+  },
+  "2017-A-fogra2-q2": {
+    "just_audio": {"marks": 0, "reason": "Wrong occupation given ('scríbhneoir')"},
+    "no_context": {"marks": 0, "reason": "Unclear/unrelated, no valid point"},
+    "just_transcript": {"marks": 2, "reason": "'Láithreoir ar TG4' matches a 2-mark answer"}
+  },
+  "2017-B-comhra2-q1": {
+    "just_audio": {"marks": 0, "reason": "Garbled, no employer named"},
+    "no_context": {"marks": 0, "reason": "Cut off, no employer named"},
+    "just_transcript": {"marks": 0, "reason": "States her occupation ('aistritheoir'), not who she works for"}
+  },
+  "2017-B-comhra2-q5": {
+    "just_audio": {"marks": 0, "reason": "No relevant content"},
+    "no_context": {"marks": 0, "reason": "No relevant content"},
+    "just_transcript": {"marks": 0, "reason": "Talks about money, not failing to get a summer job"}
+  },
+  "2018-A-fogra2-q1": {
+    "just_audio": {"marks": 0, "reason": "No club named"},
+    "no_context": {"marks": 0, "reason": "No club named"},
+    "just_transcript": {"marks": 2, "reason": "Exact match 'Cumann Drámaíochta Ráth Chairn'"}
+  },
+  "2018-B-comhra1-q6": {
+    "just_audio": {"marks": 0, "reason": "No proverb given"},
+    "no_context": {"marks": 0, "reason": "No proverb given"},
+    "just_transcript": {"marks": 2, "reason": "Exact match 'Ní neart go cur le chéile'"}
+  },
+  "2018-B-comhra2-q7": {
+    "just_audio": {"marks": 0, "reason": "No specific information given"},
+    "no_context": {"marks": 0, "reason": "No specific information given"},
+    "just_transcript": {"marks": 0, "reason": "Does not state the 'nósanna maireachtála' point"}
+  },
+  "2019-B-comhra1-q3": {
+    "just_audio": {"marks": 0, "reason": "Only names given, no reasons"},
+    "no_context": {"marks": 0, "reason": "Garbled, no reasons given"},
+    "just_transcript": {"marks": 4, "reason": "'Tá sé sábháilte a bheith ag siúl agus ag rothaíocht orthu' matches the combined 4-mark scheme answer"}
+  },
+  "2019-B-comhra2-q1": {
+    "just_audio": {"marks": 0, "reason": "No course named"},
+    "no_context": {"marks": 0, "reason": "No course named"},
+    "just_transcript": {"marks": 2, "reason": "Exact match 'Dlí agus Gnó'"}
+  },
+  "2019-C-piosa1-q3": {
+    "just_audio": {"marks": 0, "reason": "Cut off, no number given"},
+    "no_context": {"marks": 0, "reason": "Cut off, no number given"},
+    "just_transcript": {"marks": 0, "reason": "Names a specific lighthouse instead of the required number"}
+  },
+  "2020-A-fogra1-q1": {
+    "just_audio": {"marks": 0, "reason": "No broadcaster named"},
+    "no_context": {"marks": 0, "reason": "Just restates the question, no answer given"},
+    "just_transcript": {"marks": 2, "reason": "Contains 'RTÉ Raidió na Gaeltachta'"}
+  },
+  "2020-B-comhra1-q5": {
+    "just_audio": {"marks": 0, "reason": "Garbled repetition, no advice given"},
+    "no_context": {"marks": 0, "reason": "Garbled, restates question, no advice given"},
+    "just_transcript": {"marks": 2, "reason": "'Tóg sos ag an deireadh seachtaine' matches 'am a thógáil le scíth a ligean'; only one distinct point given"}
+  },
+  "2021-A-fogra2-q2": {
+    "just_audio": {"marks": 0, "reason": "Restates question, no reason given"},
+    "no_context": {"marks": 0, "reason": "Garbled, no reason given"},
+    "just_transcript": {"marks": 0, "reason": "Mentions the War of Independence but does not state it is a commemoration"}
+  },
+  "2021-B-comhra1-q1": {
+    "just_audio": {"marks": 0, "reason": "No specific recommendation given"},
+    "no_context": {"marks": 0, "reason": "No specific recommendation given"},
+    "just_transcript": {"marks": 0, "reason": "Restates question, no specific recommendation named"}
+  },
+  "2022-A-fogra1-q1": {
+    "just_audio": {"marks": 0, "reason": "No relevant content"},
+    "no_context": {"marks": 0, "reason": "Cut off, no relevant content"},
+    "just_transcript": {"marks": 0, "reason": "References the sideline programme but does not state a presenter is sought"}
+  },
+  "2022-B-comhra1-q3": {
+    "just_audio": {"marks": 0, "reason": "No reason given"},
+    "no_context": {"marks": 0, "reason": "Unclear, no valid reason given"},
+    "just_transcript": {"marks": 0, "reason": "Nonsensical question, no reason given"}
+  },
+  "2023-A-fogra1-q3": {
+    "just_audio": {"marks": 0, "reason": "No relevant content"},
+    "no_context": {"marks": 0, "reason": "No relevant content"},
+    "just_transcript": {"marks": 2, "reason": "'An saothar a phlé' exact match"}
+  },
+  "2023-A-fogra1-q4": {
+    "just_audio": {"marks": 0, "reason": "Garbled, no relevant content"},
+    "no_context": {"marks": 0, "reason": "Garbled, no relevant content"},
+    "just_transcript": {"marks": 0, "reason": "Discusses buying the book, not registration form fields"}
+  },
+  "2024-B-comhra1-q1": {
+    "just_audio": {"marks": 0, "reason": "Garbled repetition, no relevant content"},
+    "no_context": {"marks": 0, "reason": "Garbled, no relevant content"},
+    "just_transcript": {"marks": 2, "reason": "'Teas millteanach' and 'teocht os cionn daichead céim' both match; single blank, capped at 2"}
+  },
+  "2024-B-comhra1-q5": {
+    "just_audio": {"marks": 0, "reason": "Garbled repetition, no relevant content"},
+    "no_context": {"marks": 0, "reason": "No relevant content"},
+    "just_transcript": {"marks": 2, "reason": "Exact match 'gearradh siar ar úsáid breoslaí iontaise'"}
+  },
+  "2025-B-comhra2-q3": {
+    "just_audio": {"marks": 0, "reason": "No specific reason given"},
+    "no_context": {"marks": 0, "reason": "No specific reason given"},
+    "just_transcript": {"marks": 0, "reason": "Restates question, no specific reason given"}
+  },
+  "2025-C-piosa2-q1": {
+    "just_audio": {"marks": 0, "reason": "Cut off, no organisation named"},
+    "no_context": {"marks": 0, "reason": "Cut off, no organisation named"},
+    "just_transcript": {"marks": 0, "reason": "Garbled, does not name 'Gael Linn'"}
+  }
+}

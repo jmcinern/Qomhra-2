@@ -1,0 +1,61 @@
+# Shared parent for the matched discrete-token rerun. Children override `data` only.
+defaults:
+  - base
+  - _self_
+
+task:
+  modality: discrete_tokens
+  discrete_only: true
+  audio_target: units
+  base_vocab_size: 151936
+  speech_vocab_extra: 1003
+  unit_token_start: 151936
+  unit_token_count: 1000
+
+freeze:
+  # There is no continuous audio path in this rerun. Train the token embeddings,
+  # decoder and LM head; keep the unused audio tower frozen in every ablation.
+  mode: llm_only
+
+model:
+  gradient_checkpointing: false
+
+data:
+  source: discrete_mixed
+  # Binding TRAIN-split deduplicated unit count. The corpus-wide 832,071,157
+  # includes the recording-disjoint 5% validation set and must not size training.
+  token_budget: 791052384
+  text_bin: /scratch/project_465002364/audio/discrete_ablation_9k/text/train.bin
+  unit_train_bin: /scratch/project_465002364/audio/discrete_ablation_9k/units/train.bin
+  unit_validation_bin: /scratch/project_465002364/audio/discrete_ablation_9k/units/validation.bin
+  asr_input_bin: /scratch/project_465002364/audio/discrete_ablation_9k/asr/train_input_ids.bin
+  asr_labels_bin: /scratch/project_465002364/audio/discrete_ablation_9k/asr/train_labels.bin
+  asr_validation_input_bin: /scratch/project_465002364/audio/discrete_ablation_9k/asr/validation_input_ids.bin
+  asr_validation_labels_bin: /scratch/project_465002364/audio/discrete_ablation_9k/asr/validation_labels.bin
+  seq_len: 1024
+  micro_batch_size: 6
+  validation_steps: 128
+  epoch_start: 0.0
+  epoch_end: 1.0
+
+optim:
+  grad_acc: 1
+  epochs: 1
+  max_steps: null
+  lr: 3.0e-5
+  warmup_fraction: 0.05
+
+fsdp:
+  sharding_strategy: hybrid_shard
+  transformer_layer_cls: [Qwen2_5OmniDecoderLayer]
+
+checkpoint:
+  at_fractions: []
+  save_final: true
+  save_training_state: true
+  resume_from: null
+  keep_last: 2
+
+logging:
+  every_steps: 10
+  wandb_run_name: discrete-rerun

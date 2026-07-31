@@ -1,0 +1,167 @@
+{
+  "2013-A-fogra2-q3": {
+    "just_audio": {"marks": 0, "reason": "Answer is incoherent and unrelated to the question."},
+    "no_context": {"marks": 0, "reason": "Guesses a concert ('ceolchoirm'); scheme requires 'oíche eolais'."},
+    "just_transcript": {"marks": 2, "reason": "Gives 'Oíche eolais', the 2-mark answer."}
+  },
+  "2013-A-fogra2-q4": {
+    "just_audio": {"marks": 0, "reason": "Talks about sponsorship cards, not how money is used."},
+    "no_context": {"marks": 0, "reason": "Describes a climate-change project, not sourcing water in Africa."},
+    "just_transcript": {"marks": 2, "reason": "Matches the full 2-mark answer on finding new water sources in Africa."}
+  },
+  "2013-B-comhra1-q6": {
+    "just_audio": {"marks": 0, "reason": "Truncated, incoherent fragment; no clear answer given."},
+    "no_context": {"marks": 0, "reason": "Hedging filler with no substantive point supplied."},
+    "just_transcript": {"marks": 2, "reason": "Gives 'Costas an lóistín', the 2-mark answer."}
+  },
+  "2014-A-fogra1-q1": {
+    "just_audio": {"marks": 0, "reason": "Vague 'suitable qualifications' claim, no role named."},
+    "no_context": {"marks": 0, "reason": "Wrong field (science/technology), not the Irish department secretary role."},
+    "just_transcript": {"marks": 2, "reason": "Gives 'Rúnaí i Roinn na Gaeilge', the 2-mark answer."}
+  },
+  "2014-C-piosa1-q2": {
+    "just_audio": {"marks": 0, "reason": "Garbled, unrelated to the target audience of the station."},
+    "no_context": {"marks": 1, "reason": "'Dream daoine a bhfuil Gaeilge acu' approximates the 1-mark tier 'Pobal na Gaeilge', missing the geographic detail."},
+    "just_transcript": {"marks": 2, "reason": "Names Pobal na Gaeilge i mBaile Átha Cliath / ar fud Chúige Laighean, the full 2-mark answer."}
+  },
+  "2014-C-piosa2-q2": {
+    "just_audio": {"marks": 0, "reason": "Vague, repetitive 'damáiste' with no specific fact."},
+    "no_context": {"marks": 0, "reason": "Repetitive nonsense, no specific fact given."},
+    "just_transcript": {"marks": 1, "reason": "States houses were destroyed but omits 'a lán' (many), matching only the 1-mark tier."}
+  },
+  "2015-A-fogra2-q3": {
+    "just_audio": {"marks": 0, "reason": "Names a concert, which is not one of the listed activities."},
+    "no_context": {"marks": 0, "reason": "Names a concert, which is not one of the listed activities."},
+    "just_transcript": {"marks": 2, "reason": "Names péintéireacht/amhránaíocht, both listed 2-mark answers; only one blank required."}
+  },
+  "2015-B-comhra1-q4": {
+    "just_audio": {"marks": 0, "reason": "Describes an energy-saving plan, not the scheme's listed thinking points (environment/climate/warming)."},
+    "no_context": {"marks": 0, "reason": "Lists rhetorical questions with no substantive point matching the scheme."},
+    "just_transcript": {"marks": 0, "reason": "Merely restates the question with no specific point supplied."}
+  },
+  "2015-C-piosa2-q2": {
+    "just_audio": {"marks": 2, "reason": "Names 'Tuairisc' as the news service, matching the answer."},
+    "no_context": {"marks": 0, "reason": "Wrong name given (Nuacht TG4)."},
+    "just_transcript": {"marks": 2, "reason": "Gives 'Tuairisc.ie' exactly."}
+  },
+  "2016-B-comhra2-q3": {
+    "just_audio": {"marks": 0, "reason": "Repetitive, off-topic statement about watching the game; no reasons given."},
+    "no_context": {"marks": 0, "reason": "Names a specific match as good, not one of the scheme's listed reasons (organisation/play quality/fan friendliness)."},
+    "just_transcript": {"marks": 4, "reason": "Gives both listed reasons: excellent play ('an imirt ar fheabhas') and friendly fans of all nations, two distinct 2-mark blanks."}
+  },
+  "2016-B-comhra2-q5": {
+    "just_audio": {"marks": 0, "reason": "Lists unrelated countries' players, no course named."},
+    "no_context": {"marks": 0, "reason": "Empty template listing 'Céim 1: Céim 2:...' with no content."},
+    "just_transcript": {"marks": 2, "reason": "Gives 'innealtóireacht ríomhaireachta' (computer engineering), the 2-mark answer."}
+  },
+  "2016-C-piosa2-q2": {
+    "just_audio": {"marks": 0, "reason": "Garbled question fragment, not an answer."},
+    "no_context": {"marks": 0, "reason": "Generic tribute about his contribution to Irish/Gaeltacht, not the specific listed reason about not turning his back on his culture/people."},
+    "just_transcript": {"marks": 2, "reason": "States he never turned his back on his culture nor his own people, the 2-mark answer."}
+  },
+  "2017-A-fogra2-q2": {
+    "just_audio": {"marks": 0, "reason": "States she is fluent in Irish, not a listed information point."},
+    "no_context": {"marks": 0, "reason": "Says she is a journalist and writer, not matching TG4 presenter facts."},
+    "just_transcript": {"marks": 0, "reason": "Cut off before giving any specific fact from the scheme."}
+  },
+  "2017-B-comhra2-q1": {
+    "just_audio": {"marks": 0, "reason": "Describes her as a translator of legal documents but never names the EU."},
+    "no_context": {"marks": 0, "reason": "Names the European Council, which differs from the required 'An tAontas Eorpach/AE'."},
+    "just_transcript": {"marks": 0, "reason": "Cut off before naming the EU."}
+  },
+  "2017-B-comhra2-q5": {
+    "just_audio": {"marks": 0, "reason": "Nonsensical, unrelated statement."},
+    "no_context": {"marks": 0, "reason": "Vague 'couldn't do his work', not matching the listed 'failed to get a job' reasons."},
+    "just_transcript": {"marks": 2, "reason": "States he failed to get a job, matching the 2-mark answer."}
+  },
+  "2018-A-fogra2-q1": {
+    "just_audio": {"marks": 0, "reason": "Talks about roof repairs and ticket sales, not the drama society's name."},
+    "no_context": {"marks": 0, "reason": "Generic 'An Cumann Drámaíochta' without the required 'Ráth Chairn' name."},
+    "just_transcript": {"marks": 2, "reason": "Names 'Cumann Drámaíochta Ráth Chairn' exactly."}
+  },
+  "2018-B-comhra1-q6": {
+    "just_audio": {"marks": 0, "reason": "Unrelated content about preparing food parcels."},
+    "no_context": {"marks": 0, "reason": "Just restates the question, no proverb supplied."},
+    "just_transcript": {"marks": 2, "reason": "Gives 'Ní neart go cur le chéile', the 2-mark answer."}
+  },
+  "2018-B-comhra2-q7": {
+    "just_audio": {"marks": 0, "reason": "Unrelated statement about time at a summer college."},
+    "no_context": {"marks": 0, "reason": "Vague reference with no content on what information is provided."},
+    "just_transcript": {"marks": 2, "reason": "States she will get information on the living customs of different communities in this country, the full 2-mark answer."}
+  },
+  "2019-B-comhra1-q3": {
+    "just_audio": {"marks": 0, "reason": "Repetitive nonsense ('tá siad saibhir'), no valid reasons given."},
+    "no_context": {"marks": 0, "reason": "Repeats 'saor in aisce/saor ó thimpistí', which are not among the scheme's listed reasons."},
+    "just_transcript": {"marks": 4, "reason": "Gives the combined safe-to-walk-and-cycle answer (worth 4 marks per the scheme's own note) plus a further listed healthy-leisure reason, capped at marks_available."}
+  },
+  "2019-B-comhra2-q1": {
+    "just_audio": {"marks": 0, "reason": "Merely repeats the question, no course named."},
+    "no_context": {"marks": 0, "reason": "Names the wrong course ('Cúrsa na Gaeilge')."},
+    "just_transcript": {"marks": 2, "reason": "Gives 'Dlí agus Gnó', the 2-mark answer."}
+  },
+  "2019-C-piosa1-q3": {
+    "just_audio": {"marks": 0, "reason": "Wrong number (130)."},
+    "no_context": {"marks": 0, "reason": "Wrong number (100)."},
+    "just_transcript": {"marks": 2, "reason": "Gives 'dhá theach solais déag' (twelve), matching the 2-mark answer."}
+  },
+  "2020-A-fogra1-q1": {
+    "just_audio": {"marks": 0, "reason": "Talks about the programme's presenter, not who issued the announcement."},
+    "no_context": {"marks": 0, "reason": "Wrongly attributes the announcement to a government minister."},
+    "just_transcript": {"marks": 2, "reason": "Gives 'RTÉ Raidió na Gaeltachta', the 2-mark answer."}
+  },
+  "2020-B-comhra1-q5": {
+    "just_audio": {"marks": 0, "reason": "Describes a basketball competition, not mental health advice."},
+    "no_context": {"marks": 0, "reason": "Trails off without stating any specific piece of advice from the scheme."},
+    "just_transcript": {"marks": 0, "reason": "Describes the school's rural setting, not any of the listed advice points."}
+  },
+  "2021-A-fogra2-q2": {
+    "just_audio": {"marks": 0, "reason": "Gives an application deadline date, not the reason for the competition."},
+    "no_context": {"marks": 0, "reason": "Says it promotes the Irish language, not commemorating the War of Independence."},
+    "just_transcript": {"marks": 2, "reason": "States it is to commemorate the War of Independence, the 2-mark answer."}
+  },
+  "2021-B-comhra1-q1": {
+    "just_audio": {"marks": 0, "reason": "Nonsensical, unrelated statement."},
+    "no_context": {"marks": 0, "reason": "States the opposite recommendation (permission to travel abroad)."},
+    "just_transcript": {"marks": 2, "reason": "States the recommendation not to travel abroad, the 2-mark answer."}
+  },
+  "2022-A-fogra1-q1": {
+    "just_audio": {"marks": 2, "reason": "Refers to presenting the 'Ar an Taobhlíne' programme, matching a listed 2-mark answer despite surrounding clutter."},
+    "no_context": {"marks": 0, "reason": "Generic 'communication skills', not the specific sports-presenter role."},
+    "just_transcript": {"marks": 2, "reason": "Gives 'Láithreoir spóirt chun an clár Ar an Taobhlíne a chur i láthair', the 2-mark answer."}
+  },
+  "2022-B-comhra1-q3": {
+    "just_audio": {"marks": 0, "reason": "Unrelated dialogue about a driving test."},
+    "no_context": {"marks": 0, "reason": "Generic 'was very good/effective', not one of the listed specific reasons."},
+    "just_transcript": {"marks": 2, "reason": "States he put him at ease ('chuir sé ar a chompord mé'), the 2-mark answer."}
+  },
+  "2023-A-fogra1-q3": {
+    "just_audio": {"marks": 0, "reason": "Refers to contacting the team, not discussing the book."},
+    "no_context": {"marks": 0, "reason": "Merely restates the question, no answer content."},
+    "just_transcript": {"marks": 2, "reason": "Gives 'deis chun an saothar a phlé', the 2-mark answer."}
+  },
+  "2023-A-fogra1-q4": {
+    "just_audio": {"marks": 0, "reason": "Lists generic 'Ainm/Seoladh/Uimhir theileafóin', none matching the specific listed items (username/password/email address)."},
+    "no_context": {"marks": 0, "reason": "Garbled, no matching items."},
+    "just_transcript": {"marks": 4, "reason": "Lists ainm úsáideora, pasfhocal, and seoladh ríomhphoist, covering the two required distinct blanks."}
+  },
+  "2024-B-comhra1-q1": {
+    "just_audio": {"marks": 2, "reason": "States 'teas millteanach' and the temperature was very high, matching a 2-mark tier despite repetition."},
+    "no_context": {"marks": 2, "reason": "States the temperature was very high ('an-ard'), matching the 2-mark tier."},
+    "just_transcript": {"marks": 2, "reason": "States teas millteanach and temperature above 40°C, matching the 2-mark answer(s), one blank required."}
+  },
+  "2024-B-comhra1-q5": {
+    "just_audio": {"marks": 0, "reason": "Discusses agriculture's share of emissions, not what must be done."},
+    "no_context": {"marks": 0, "reason": "Vague generality about climate change being part of every action, no specific action stated."},
+    "just_transcript": {"marks": 2, "reason": "States cutting back on fossil fuel use, the 2-mark answer."}
+  },
+  "2025-B-comhra2-q3": {
+    "just_audio": {"marks": 0, "reason": "Repetitive statement about better job opportunities, not a listed reason."},
+    "no_context": {"marks": 0, "reason": "Merely restates the question, no specific reason given."},
+    "just_transcript": {"marks": 2, "reason": "States she can be virtually present at family occasions, the 2-mark answer."}
+  },
+  "2025-C-piosa2-q1": {
+    "just_audio": {"marks": 0, "reason": "Names the wrong body (Dept of Arts/Education)."},
+    "no_context": {"marks": 0, "reason": "Names the wrong body (National Service)."},
+    "just_transcript": {"marks": 2, "reason": "Gives 'Gael Linn', the 2-mark answer."}
+  }
+}

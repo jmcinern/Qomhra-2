@@ -1,0 +1,398 @@
+[
+  {
+    "question_id": "2013-A-fogra2-q3",
+    "question": "Cad a bheidh ar siúl oíche Dé Céadaoin seo chugainn?",
+    "marking_scheme": "Cad a bheidh ar siúl oíche Dé Céadaoin seo chugainn? Oíche eolais = 2 mharc eolas = 0",
+    "marks_available": 2,
+    "blanks_required": 1,
+    "answers": {
+      "just_audio": " Beidh an t-amhránaí agus agus an ce",
+      "no_context": " Beidh ceolchoirm agus damhsa ar siúl",
+      "just_transcript": " Beidh oíche eolais faoin turas rothaí"
+    }
+  },
+  {
+    "question_id": "2013-A-fogra2-q4",
+    "question": "Conas a úsáidfear an t-airgead?",
+    "marking_scheme": "Conas a úsáidfear an t-airgead ? Chun foinsí nua uisce a aimsiú i dtíortha na hAfraice = 2 mharc Chun foinsí uisce a aimsiú = 2 mharc Ar fhoinsí uisce =2 mharc Uisce do na daoine san Afraic = 2 mharc Uisce = 1 mharc Uisce san Afraic = 1 mharc I dtíortha na hAfraice = 0",
+    "marks_available": 2,
+    "blanks_required": 1,
+    "answers": {
+      "just_audio": " Tá an t-airgeadad agus in úsáid ag an t-airgead a úsáidtear an t-airgead a úsáidtear an t-airgead a úsáidtear an t-airgead a ú",
+      "no_context": " Tá an t-airgead le húsáid chun an t-áitreabh a athchóiriú agus chun an t-áitreabh a chur in oiriúint do riachtanais na n-úsáideoirí.",
+      "just_transcript": " Úsáidfear an t-airgead ar iarrachtaí chun foinsí nua uisce a aimsiú i dtíortha na hAfraice."
+    }
+  },
+  {
+    "question_id": "2013-B-comhra1-q6",
+    "question": "Cén rud is mó a chruthaíonn fadhbanna do mhic léinn ollscoile, dar le hOrla?",
+    "marking_scheme": "Cén rud is mó a chruthaíonn fadhbanna do mhic léinn ollscoile,dar le hOrla? Costas an lóistín = 2 mharc An costas = 1 mharc An lóistín = 1 mharc\n\n7",
+    "marks_available": 2,
+    "blanks_required": 1,
+    "answers": {
+      "just_audio": " An t-ábhar is mó a chuireann isteach ar mhic léinn o",
+      "no_context": " An t-ualach oibre.",
+      "just_transcript": " Costas an lóistín "
+    }
+  },
+  {
+    "question_id": "2014-A-fogra1-q1",
+    "question": "Cad atá á lorg ag Ollscoil Luimnigh?",
+    "marking_scheme": "Cad atá á lorg ag Ollscoil Luimnigh?\nRúnaí i Roinn na Gaeilge = 2 mharc Rúnaí = 1 mharc",
+    "marks_available": 2,
+    "blanks_required": 1,
+    "answers": {
+      "just_audio": " Tá Ollscoil Luimnigh ag lorg iarratas ó dhaoine a bhfuil Gaeilge líofa acu ch",
+      "no_context": " Tá Ollscoil Luimnigh ag lorg iarratas ó dhaoine a bhfuil na cáilíochtaí cuí ac",
+      "just_transcript": " Tá Ollscoil Luimnigh ag lorg rúnaí i Roinn na Gaeilge."
+    }
+  },
+  {
+    "question_id": "2014-C-piosa1-q2",
+    "question": "Cén dream daoine ar a bhfuil an stáisiún raidió seo dírithe?",
+    "marking_scheme": "Cén dream daoine ar a bhfuil an stáisiún raidió seo dírithe?\nPobal na Gaeilge i mBaile Átha Cliath = 2 mharc Pobal na Gaeilge ar fud Chúige Laighean = 2 mharc Pobal na Gaeilge = 1 mharc Raidió Pobail = 0\n\n2 mharc 2 mharc",
+    "marks_available": 2,
+    "blanks_required": 1,
+    "answers": {
+      "just_audio": " An dream daoine ar a bhfuil an stáisiún raidió seo dírithe.",
+      "no_context": " Is é an dream daoine ar a bhfuil an stáisiún raidió seo dírithe ná daoine óga.",
+      "just_transcript": " Stáisiún raidió pobail is ea Raidió na Life a thosaigh ag craoladh i Meán Fómhair 1993. Tá sé dírithe ar phobal na"
+    }
+  },
+  {
+    "question_id": "2014-C-piosa2-q2",
+    "question": "Luaigh pointe amháin eolais faoin damáiste a rinne an tíofún in 2013.",
+    "marking_scheme": "Luaigh pointe amháin eolais faoin damáiste a rinne an tíofún in 2013.\nScriosadh a lán tithe = 2 mharc Scriosadh tithe = 1 mharc Fágadh a lán daoine gan dídean = 2 mharc Fágadh daoine gan dídean = 1 mharc\n\n2 mharc 2 mharc",
+    "marks_available": 2,
+    "blanks_required": 1,
+    "answers": {
+      "just_audio": " Tá an tíofún in 2013 ar cheann de na tubaistí nádúrtha is measa a tharla",
+      "no_context": " D’fhág an tíofún 100,000 duine gan dídean.",
+      "just_transcript": " Bhuail an tíofún an ceantar in 2013 agus scriosadh a lán tithe."
+    }
+  },
+  {
+    "question_id": "2015-A-fogra2-q3",
+    "question": "Luaigh imeacht amháin a bheidh ar siúl i ndiaidh na ranganna.",
+    "marking_scheme": "Luaigh imeacht amháin a bheidh ar siúl i ndiaidh na ranganna. Péintéireacht = 2 mharc Amhránaíocht = 2 mharc Léamh filíochta = 2 mharc Siúlóidí ar an sliabh = 2 mharc Léamh = 1 mharc Siúlóidí = 1 mharc",
+    "marks_available": 2,
+    "blanks_required": 1,
+    "answers": {
+      "just_audio": " Beidh ranganna damhsa ar siúl i ndiaidh na ranganna.",
+      "no_context": " Beidh ceolchoirm ar siúl i ndiaidh na ranganna. ",
+      "just_transcript": " Beidh raon leathan imeachtaí ar siúl i ndiaidh na ranganna: péintéireacht,"
+    }
+  },
+  {
+    "question_id": "2015-B-comhra1-q4",
+    "question": "Cuireann an feachtas seo na scoláirí ag smaoineamh ar rudaí áirithe, dar le Cáit. Scríobh síos ceann amháin de na rudaí sin.",
+    "marking_scheme": "Cuireann an feachtas seo na scoláirí ag smaoineamh ar rudaí áirithe, dar le Cáit.\n\nScríobh síos ceann amháin de na rudaí sin.\n\n2 mharc\n\nAn timpeallacht = 2 mharc An t-athrú aeráide / athrú aeráide = 2 mharc Téamh an domhain = 2 mharc Aeráid = 1 mharc Téamh = 0\n6",
+    "marks_available": 2,
+    "blanks_required": 1,
+    "answers": {
+      "just_audio": " Tá an feachtas seo ag iarraidh ar dhaoine a bheith níos cúramaí faoi na rudaí a dhéanann siad ar líne",
+      "no_context": " ",
+      "just_transcript": " Tá tionchar mór ag an bhfeachtas glas ar na scoláirí. "
+    }
+  },
+  {
+    "question_id": "2015-C-piosa2-q2",
+    "question": "Cén t-ainm atá ar an tseirbhís nuachta seo?",
+    "marking_scheme": "Cén t-ainm atá ar an tseirbhís nuachta seo?\n\n2 mharc\n\nTuairisc.ie = 2 mharc",
+    "marks_available": 2,
+    "blanks_required": 1,
+    "answers": {
+      "just_audio": " Nuacht TG4.",
+      "no_context": " Nuacht TG4. ",
+      "just_transcript": " Tuairisc.ie"
+    }
+  },
+  {
+    "question_id": "2016-B-comhra2-q3",
+    "question": "Bhí comórtas Chorn an Domhain sa rugbaí go hiontach, dar le Liam. Tabhair dhá chúis lena thuairim.",
+    "marking_scheme": "Bhí comórtas Chorn an Domhain sa rugbaí go hiontach, dar le Liam.\n\nTabhair dhá chúis lena thuairim.\n\n2 mharc + 2 mharc\n\nBhí sé eagraithe go han-mhaith = 2 mharc Bhí an imirt (na cluichí) ar fheabhas = 2 mharc An imirt = 1 mharc Bhí lucht leanúna na náisiún go léir an-chairdiúil lena chéile = 2 mharc Lucht leanúna an-chairdiúil = 2 mharc Lucht leanúna = 1 mharc Eagraithe = 1 mharc",
+    "marks_available": 4,
+    "blanks_required": 2,
+    "answers": {
+      "just_audio": " Bhí an comórtas go hiontach mar bhí an caighdeán imeartha an-ard agus bhí na cluichí thar a bheith suimiúil. Bhí an lucht féachana an-tógtha leis na himreoirí ag",
+      "no_context": " Bhí an comórtas go hiontach mar bhí an aimsir go maith agus bhí na cluichí go maith. ",
+      "just_transcript": " Bhí an comórtas eagraithe go han-mhaith. Bhí an imirt ar fheabhas. Bhí lucht leanúna na náisiún go léir an-chairdiúil lena chéile. Bhí an bua iontach ag foireann na"
+    }
+  },
+  {
+    "question_id": "2016-B-comhra2-q5",
+    "question": "Cén chéim a thosaigh Paul O’Connell in Ollscoil Luimnigh?",
+    "marking_scheme": "Cén chéim a thosaigh Paul O’Connell in Ollscoil Luimnigh? Innealtóireacht ríomhaireachta = 2 mharc\n\n2 mharc\n\n7",
+    "marks_available": 2,
+    "blanks_required": 1,
+    "answers": {
+      "just_audio": " Céim BA sa Ghaeilge agus sa Bhéarla.",
+      "no_context": " Céim BA sa Ghaeilge agus sa Stair.",
+      "just_transcript": " Céim san innealtóireacht ríomhaireachta."
+    }
+  },
+  {
+    "question_id": "2016-C-piosa2-q2",
+    "question": "Cén fáth ar moladh Micheál Ó Cearna nuair a fuair sé bás?",
+    "marking_scheme": "Cén fáth ar moladh Micheál Ó Cearna nuair a fuair sé bás?\n\n2 mharc\n\nNíor thug sé a chúl riamh lena chultúr ná lena mhuintir féin = 2 mharc\nNíor thug sé a chúl riamh lena chultúr féin = 2 mharc Níor thug sé a chúl riamh lena mhuintir féin = 2 mharc",
+    "marks_available": 2,
+    "blanks_required": 1,
+    "answers": {
+      "just_audio": " Mar gheall ar an méid a rinne sé ar son na Gaeilge agus ar son na hÉireann.",
+      "no_context": " Mar gheall ar an méid a rinne sé ar son na Gaeilge.",
+      "just_transcript": " Mar níor thug sé a chúl riamh lena chultúr ná lena mhuintir féin."
+    }
+  },
+  {
+    "question_id": "2017-A-fogra2-q2",
+    "question": "Luaigh pointe amháin eolais faoi Mháire Treasa Ní Dhubhghaill.",
+    "marking_scheme": "Luaigh pointe amháin eolais faoi Mháire Treasa Ní Dhubhghaill.\nIs láithreoir ar TG4 í = 2 mharc Láithreoir ar TG4 = 2 mharc Cuirfidh sí tús leis an lá eolais = 2 mharc Oibríonn sí ar TG4 = 1 mharc Bíonn sí ar TG4 = 1 mharc Láithreoir = 1 mharc\n\n2 mharc",
+    "marks_available": 2,
+    "blanks_required": 1,
+    "answers": {
+      "just_audio": " Bhí Máire Treasa Ní Dhubhghaill ina cónaí i mBaile Átha Cliath. Bhí sí ina cón",
+      "no_context": " Bhí Máire Treasa Ní Dhubhghaill ina hAire Oideachais agus ina hAire Stáit don Gha",
+      "just_transcript": " Is láithreoir ar TG4 í Máire Treasa Ní Dhubhghaill."
+    }
+  },
+  {
+    "question_id": "2017-B-comhra2-q1",
+    "question": "Cé leis a bhfuil deirfiúr Áine ag obair sa Bhruiséil?",
+    "marking_scheme": "Cé leis a bhfuil deirfiúr Áine ag obair sa Bhruiséil?\n\nAn tAontas Eorpach = 2 mharc AE = 2 mharc",
+    "marks_available": 2,
+    "blanks_required": 1,
+    "answers": {
+      "just_audio": " Tá sí ag obair leis an gcomhlacht teicneolaíochta,",
+      "no_context": " Tá sí ag obair leis an gCoimisiún Eorpach.",
+      "just_transcript": " Is aistritheoir í."
+    }
+  },
+  {
+    "question_id": "2017-B-comhra2-q5",
+    "question": "Cén fáth a raibh díomá ar Oisín i dtús an tsamhraidh?",
+    "marking_scheme": "Cén fáth a raibh díomá ar Oisín i dtús an tsamhraidh?\nTheip air post (samhraidh) a fháil = 2 mharc Theip air post a fháil in óstán ar an mbaile = 2 mharc Ní bhfuair sé post (samhraidh) = 2 mharc Níor éirigh leis post (samhraidh) a fháil = 2 mharc",
+    "marks_available": 2,
+    "blanks_required": 1,
+    "answers": {
+      "just_audio": " Bhí díomá ar Oisín i dtús an tsamhraidh mar bhí sé ag dul ar ais go hÉirinn. Bhí sé ag dul ar ais go hÉirinn mar bhí sé",
+      "no_context": " Bhí díomá air mar ní raibh sé in ann dul ag snámh.",
+      "just_transcript": " Theip air post a fháil i ngach óstán ar an mbaile. "
+    }
+  },
+  {
+    "question_id": "2018-A-fogra2-q1",
+    "question": "Cén cumann drámaíochta a chuirfidh dráma na Nollag ar stáitse?",
+    "marking_scheme": "Cén cumann drámaíochta a chuirfidh dráma na Nollag ar stáitse?\n(Cumann drámaíochta) Ráth Chairn = 2 mharc",
+    "marks_available": 2,
+    "blanks_required": 1,
+    "answers": {
+      "just_audio": " Cumann Drámaíochta Chois Fharraige.",
+      "no_context": " An Cumann Drámaíochta. ",
+      "just_transcript": " Cumann Drámaíochta Ráth Chairn. "
+    }
+  },
+  {
+    "question_id": "2018-B-comhra1-q6",
+    "question": "Cén seanfhocal atá fíor i gcás na scoláirí i scoil Orla, dar le Tomás?",
+    "marking_scheme": "Cén seanfhocal atá fíor i gcás na scoláirí i scoil Orla, dar le Tomás? Ní neart go cur le chéile = 2 mharc\n\n2 mharc",
+    "marks_available": 2,
+    "blanks_required": 1,
+    "answers": {
+      "just_audio": " Tá an seanfhocal seo fíor i gcás na scoláirí i scoil Orla,",
+      "no_context": " Tá an seanfhocal fíor i gcás na scoláirí i scoil Orla, dar",
+      "just_transcript": " Is fíor cinnte."
+    }
+  },
+  {
+    "question_id": "2018-B-comhra2-q7",
+    "question": "Cén t‐eolas a gheobhaidh Sorcha ag an ócáid sin i halla an bhaile?",
+    "marking_scheme": "Cén t-eolas a gheobhaidh Sorcha ag an ócáid sin i halla an bhaile?\nNósanna maireachtála na bpobal éagsúil (atá sa tír seo) = 2 mharc Nósanna na bpobal = 1 mharc Nósanna sa tír seo = 1 mharc\n\n2 mharc",
+    "marks_available": 2,
+    "blanks_required": 1,
+    "answers": {
+      "just_audio": " Tá an t‐eolas ar fad ag Sorcha cheana féin.Tá an t‐eolas ar fad ag Sorcha cheana féin.",
+      "no_context": " Gheobhaidh sí eolas faoi na himeachtaí a bheidh ar siúl sa bhaile. ",
+      "just_transcript": " Gheobhaidh sí eolas faoi nósanna maireachtála na bpobal éagsúil atá sa tír seo anois. "
+    }
+  },
+  {
+    "question_id": "2019-B-comhra1-q3",
+    "question": "Luaigh dhá chúis a dtarraingíonn na glasbhealaí a lán cuairteoirí go dtí na ceantair ina bhfuil siad, dar le Síle.",
+    "marking_scheme": "Luaigh dhá chúis a dtarraingíonn na glasbhealaí a lán cuairteoirí go dtí na ceantair ina\n\nbhfuil siad, dar le Síle.\n\n2 mharc + 2 mharc\n\nTá sé sábháilte a bheith ag siúl agus ag rothaíocht orthu = 2 mharc + 2 mharc = 4 mharc\n6\n\nTá sé sábháilte a bheith ag siúl orthu = 2 mharc Tá sé sábháilte a bheith ag rothaíocht orthu = 2 mharc Ní bhíonn trácht gluaisteán orthu = 2 mharc Chun caitheamh aimsire sláintiúil a bheith acu amuigh faoin aer = 2 mharc Is iontach an deis do dhaoine iad na glasbhealaí chun caitheamh aimsire sláintiúil a bheith acu = 2 mharc Tá siad sábháilte = 1 mharc Tá sé sábháilte orthu = 1 mharc Ní bhíonn trácht orthu = 1 mharc Chun caitheamh aimsire a bheith acu amuigh faoin aer = 1 mharc",
+    "marks_available": 4,
+    "blanks_required": 2,
+    "answers": {
+      "just_audio": " Is féidir leis na glasbhealaí a bheith ina n-áiteanna iontacha le cuairt a thabhairt orthu. Is féidir leis na glasbhealaí a bheith ina n-áiteanna iontacha le cuairt a thabhairt orthu. Is féidir leis na glasbhealaí a bheith ina n-áiteanna iont",
+      "no_context": " 1.",
+      "just_transcript": " 1. Is iontach an deis do dhaoine iad na glasbhealaí chun caitheamh aimsire sláintiúil a bheith acu amuigh faoin aer. 2. Cuireann na glasbhealaí le cúrsaí eacnamaíochta na gceantar sin. "
+    }
+  },
+  {
+    "question_id": "2019-B-comhra2-q1",
+    "question": "Cén cúrsa a dhéanfaidh Máirtín i gColáiste na Tríonóide?",
+    "marking_scheme": "Cén cúrsa a dhéanfaidh Máirtín i gColáiste na Tríonóide?\n\n2 mharc\n\n(Cúrsa) Dlí agus Gnó = 2 mharc",
+    "marks_available": 2,
+    "blanks_required": 1,
+    "answers": {
+      "just_audio": " cén cúrsa a dhéanfaidh Máirtín i gColáiste na Tr Tr Freagra cén",
+      "no_context": " An Béarla.",
+      "just_transcript": " Tá sé chun cúrsa Dlí agus Gnó a dhéanamh i gColáiste na Tr"
+    }
+  },
+  {
+    "question_id": "2019-C-piosa1-q3",
+    "question": "Cé mhéad teach solais atá ar oscailt do thurasóirí anois mar chuid den chlár turasóireachta, Tithe Solais Móra na hÉireann?",
+    "marking_scheme": "Cé mhéad teach solais atá ar oscailt do thurasóirí anois mar chuid den chlár turasóireachta,\n\nTithe Solais Móra na hÉireann?\n\n2 mharc\n\n12 = 2 mharc Dhá cheann déag = 2 mharc",
+    "marks_available": 2,
+    "blanks_required": 1,
+    "answers": {
+      "just_audio": " 11.",
+      "no_context": " 10.",
+      "just_transcript": " 12 "
+    }
+  },
+  {
+    "question_id": "2020-A-fogra1-q1",
+    "question": "Cé a chuir amach an fógra seo?",
+    "marking_scheme": "Cé a chuir amach an fógra seo?\n\n2 mharc\n\nRTÉ Raidió (Radió) na Gaeltachta = 2 mharc Raidió na Gaeltachta = 2 mharc Radió na Gaeltachta = 2 mharc Rn(a)G = 2 mharc RTÉ = 1 mharc RTE = 1 mharc",
+    "marks_available": 2,
+    "blanks_required": 1,
+    "answers": {
+      "just_audio": " An Roinn Oideachais agus Scileanna.",
+      "no_context": " An tAire Oideachais agus Eolaíochta.",
+      "just_transcript": " RTÉ Raidió na Gaeltachta. "
+    }
+  },
+  {
+    "question_id": "2020-B-comhra1-q5",
+    "question": "Scríobh síos dhá mholadh a rinne an t‐aoichainteoir faoin tsláinte intinne nuair a labhair sí leis na scoláirí sinsearacha. Cuid B ar leanúint",
+    "marking_scheme": "Scríobh síos dhá mholadh a rinne an t-aoichainteoir faoin tsláinte intinne nuair a labhair\n\nsí leis na scoláirí sinsearacha.\n\n2 mharc + 2 mharc\n\nAm a thógáil le scíth a ligean = 2 mharc Caitheamh aimsire folláin (a bheith acu) = 2 mharc Caitheamh aimsire = 1 mharc Bealaí le déileáil leis an strus = 2 mharc",
+    "marks_available": 4,
+    "blanks_required": 2,
+    "answers": {
+      "just_audio": " 1. Tá sé tábhachtach go mbeadh a fhios agat go bhfuil tú ag mothú go maith. 2. Tá sé tábhachtach go mbeadh a",
+      "no_context": " 1. Moladh 1: 2. Moladh 2: ",
+      "just_transcript": " 1. Cén fáth a raibh an t‐aoichainteoir ag labhairt leis na scoláirí sinsearacha? 2. Cén chaoi a"
+    }
+  },
+  {
+    "question_id": "2021-A-fogra2-q2",
+    "question": "Cén fáth a bhfuil an comórtas scríbhneoireachta seo á eagrú?",
+    "marking_scheme": "Cén fáth a bhfuil an comórtas scríbhneoireachta seo á eagrú?\n\n2 mharc\n\nComóradh a dhéanamh ar Chogadh na Saoirse = 2 mharc Comóradh ar Chogadh na Saoirse = 2 mharc",
+    "marks_available": 2,
+    "blanks_required": 1,
+    "answers": {
+      "just_audio": " Tá an comórtas seo á eagrú chun scríbhneoirí a spreagadh chun scríobh faoi ábhair éagsúla, agus chun",
+      "no_context": " Tá an comórtas seo á eagrú chun scríbhneoirí óga a spreagadh chun a gcuid scileanna scríbhneoireachta a fhor",
+      "just_transcript": " Tá an comórtas scríbhneoireachta seo á eagrú chun comóradh a dhéanamh ar Chogadh na Saoirse a bhí ar siú"
+    }
+  },
+  {
+    "question_id": "2021-B-comhra1-q1",
+    "question": "Cén moladh a rinne an rialtas maidir le cúrsaí taistil sa samhradh?",
+    "marking_scheme": "Cén moladh a rinne an rialtas maidir le cúrsaí taistil sa samhradh?\n\n2 mharc\n\nGan taisteal thar lear = 2 mharc Gan dul thar lear = 2 mharc Saoire a chaitheamh in Éirinn = 2 mharc Fanacht sa tír seo = 2 mharc Fanacht in Éirinn = 2 mharc Saoire sa bhaile = 2 mharc",
+    "marks_available": 2,
+    "blanks_required": 1,
+    "answers": {
+      "just_audio": " Dúirt an rialtas go mbeadh cead ag daoine taisteal chuig áiteanna lasmuigh den tír agus go m",
+      "no_context": " Moladh go mbeadh cead ag daoine taisteal arís.",
+      "just_transcript": " Mhol an rialtas dúinn gan taisteal thar lear an samhradh seo, de bharr an choróinvíris. "
+    }
+  },
+  {
+    "question_id": "2022-A-fogra1-q1",
+    "question": "Cad atá á lorg ag TG4?",
+    "marking_scheme": "Láithreoir spóirt = 2 mharc Láithreoir = 1 mharc Duine a chuirfidh an clár spóirt ‘Ar an Taobhlíne’ i láthair = 2 mharc Duine a chuirfidh ‘Ar an Taobhlíne’ i láthair = 2 mharc Duine a chuirfidh clár spóirt i láthair = 2 mharc",
+    "marks_available": 2,
+    "blanks_required": 1,
+    "answers": {
+      "just_audio": " An Ghaeilge a chur chun cinn.",
+      "no_context": " Tá TG4 ag lorg daoine a bhfuil Gaeilge líofa acu agus atá sásta obair go deonach.",
+      "just_transcript": " Láithreoir spóirt."
+    }
+  },
+  {
+    "question_id": "2022-B-comhra1-q3",
+    "question": "Luaigh cúis amháin a molfadh Seán go mór an teagascóir a bhí aige.",
+    "marking_scheme": "Luaigh cúis amháin a molfadh Seán go mór an teagascóir a bhí aige.\n\n2 mharc\n\nChuir sé ar a chompord é = 2 mharc Mhínigh sé gach rud go soiléir dó = 2 mharc Mhínigh sé gach rud dó = 1 mharc",
+    "marks_available": 2,
+    "blanks_required": 1,
+    "answers": {
+      "just_audio": " Bhí Seán an-tógtha leis an teagascóir a bhí aige.",
+      "no_context": " Bhí an teagascóir an-mhaith.",
+      "just_transcript": " Mholfadh Seán go mór an teagascóir a bhí aige mar chuir sé ar a chompord é agus mhín"
+    }
+  },
+  {
+    "question_id": "2023-A-fogra1-q3",
+    "question": "Cén deis a bhíonn ag baill an chlub ar fhóram an tsuímh gréasáin nuair a bhíonn leabhar na míosa léite acu?",
+    "marking_scheme": "Cén deis a bhíonn ag baill an chlub ar fhóram an tsuímh gréasáin nuair a bhíonn leabhar\n\nna míosa léite acu?\n\n2 mharc\n\nAn saothar/é a phlé = 2 mharc Leabhar na míosa a phlé = 2 mharc An leabhar (sin) a phlé = 2 mharc",
+    "marks_available": 2,
+    "blanks_required": 1,
+    "answers": {
+      "just_audio": " Tá deis ag baill an chlub ar fhóram an tsuímh gréasáin nuair",
+      "no_context": " Tá fóram ag an suíomh gréasáin agus is féidir le baill an",
+      "just_transcript": " Bíonn deis ag baill an chlub leabhar na míosa a phlé ar fhóram an ts"
+    }
+  },
+  {
+    "question_id": "2023-A-fogra1-q4",
+    "question": "Scríobh síos dhá mhír eolais atá le líonadh isteach ar an bhfoirm chlárúcháin ar líne.",
+    "marking_scheme": "Scríobh síos dhá mhír eolais atá le líonadh isteach ar an bhfoirm chlárúcháin ar líne. 2 mharc + 2 mharc\nAinm úsáideora = 2 mharc Pasfhocal = 2 mharc Seoladh ríomhphoist = 2 mharc\n\n5",
+    "marks_available": 4,
+    "blanks_required": 2,
+    "answers": {
+      "just_audio": " 1. Ainm an Chomhlachta: 2. Seoladh an Chomhlachta: ",
+      "no_context": " 1. Ainm an Chomhlachta 2. Seoladh an Chomhlachta 3.",
+      "just_transcript": " 1. Ainm úsáideora: 2. Pasfhocal: 3. Seoladh rí"
+    }
+  },
+  {
+    "question_id": "2024-B-comhra1-q1",
+    "question": "Scríobh síos pointe amháin eolais faoin tonn teasa a bhí san Iodáil nuair a bhí Aoife agus a teaghlach ar saoire ansin.",
+    "marking_scheme": "Scríobh síos pointe amháin eolais faoin tonn teasa a bhí san Iodáil nuair a bhí Aoife agus\n\na teaghlach ar saoire ansin.\n\n2 mharc\n\n(Bhí) (teas) millteanach/uafásach/ollmhór/an-ard... = 2 mharc (Bhí) an teocht os cionn daichead céim/40 céim/40° Celsius = 2 mharc (Bhí) an teocht daichead céim/40 céim/40° Celsius = 1 mharc",
+    "marks_available": 2,
+    "blanks_required": 1,
+    "answers": {
+      "just_audio": " Bhí an tonn teasa san Iodáil an-ard.",
+      "no_context": " Bhí an teocht chomh hard le 40 céim Celsius.",
+      "just_transcript": " Bhí an teocht os cionn daichead céim Celsius gach lá. "
+    }
+  },
+  {
+    "question_id": "2024-B-comhra1-q5",
+    "question": "Cad a chaithfear a dhéanamh chun astaíochtaí gás ceaptha teasa a laghdú, dar le Seán?",
+    "marking_scheme": "Cad a chaithfear a dhéanamh chun astaíochtaí gás ceaptha teasa a laghdú, dar le Seán? 2 mharc\nGearradh siar ar úsáid breoslaí iontaise = 2 mharc Gearradh siar ar bhreoslaí iontaise = 2 mharc Gearradh siar ar úsáid breoslaí = 1 mharc Gearradh siar ar bhreoslaí = 1 mharc Gníomh fónta = 1 mharc",
+    "marks_available": 2,
+    "blanks_required": 1,
+    "answers": {
+      "just_audio": " Tá sé an-tábhachtach go ndéanfaimis gach rud is féidir linn chun astaíochtaí gás ceaptha teasa a laghdú",
+      "no_context": " Tá sé tábhachtach go ndéanfaimis gach rud is féidir linn chun astaíochtaí gás ceaptha teasa a laghdú. T",
+      "just_transcript": " Caithfear gearradh siar ar úsáid breoslaí iontaise chun astaíochtaí gás ceaptha teasa a laghdú."
+    }
+  },
+  {
+    "question_id": "2025-B-comhra2-q3",
+    "question": "Tabhair fáth amháin a ndeir Liam gur mór an chabhair í an teicneolaíocht dá deirfiúr in Sydney.",
+    "marking_scheme": "Tabhair fáth amháin a ndeir Liam gur mór an chabhair í an teicneolaíocht dá deirfiúr in Sydney.\n 2 mharc\n\n (Nóta: Sa cheist seo, fágadh an séimhiú ar an ainmfhocal ‘deirfiúr’ ar lár.)\n\n Bíonn sí i dteagmháil (leo go rialta) ar ghlaonna físe = 2 mharc\n I dteagmháil (leo go rialta) ar ghlaonna físe = 2 mharc\n Bíonn sí i dteagmháil (leo go rialta) ar na haipeanna teachtaireachtaí = 2 mharc\n I dteagmháil ar na haipeanna teachtaireachtaí = 2 mharc\n I dteagmháil ar na haipeanna = 2 mharc\n Bíonn sí ábalta a bheith i láthair go fíorúil ag ócáidí (teaghlaigh) = 2 mharc\n Ábalta a bheith i láthair go fíorúil ag ócáidí (teaghlaigh) = 2 mharc\n Ábalta a bheith i láthair go fíorúil/i láthair go fíorúil = 1 mharc\n Glaonna físe = 1 mharc\n I dteagmháil go rialta = 1 mharc\n I dteagmháil le Liam/lena muintir/leo = 1 mharc\n Aipeanna teachtaireachtaí/aipeanna = 1 mharc\n\n 7",
+    "marks_available": 2,
+    "blanks_required": 1,
+    "answers": {
+      "just_audio": " Tá an teicneolaíocht an-úsáideach mar is féidir leis an deirfiúr a bheith ag obair ón mbaile.",
+      "no_context": " Tá an teicneolaíocht ina chabhair mhór do Liam.",
+      "just_transcript": " Is mór an chabhair í an teicneolaíocht dá deirfiúr in Sydney mar airíonn sí uaithi an baile go minic."
+    }
+  },
+  {
+    "question_id": "2025-C-piosa2-q1",
+    "question": "Cén eagraíocht a chuir an chartlann nua grianghraf ar fáil le gairid?",
+    "marking_scheme": "Cén eagraíocht a chuir an chartlann nua grianghraf ar fáil le gairid?\n\n Gael Linn = 2 mharc\n\n8",
+    "marks_available": 2,
+    "blanks_required": 1,
+    "answers": {
+      "just_audio": " An Chartlann Náisiúnta Gri",
+      "no_context": " An Chartlann Náisiúnta.",
+      "just_transcript": " Gael Linn"
+    }
+  }
+]

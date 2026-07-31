@@ -1,0 +1,9 @@
+defaults:
+  - omni_disc_base
+  - _self_
+
+data:
+  source: discrete_mixed
+  stream_weights:
+    text: 1.0
+
