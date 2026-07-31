@@ -90,11 +90,22 @@ def norm(s):
     return re.sub(r"\s+", " ", s).strip()
 
 
-def wer(ref, hyp):
-    """Levenshtein over words. Returns (edits, n_ref)."""
+def wer(ref, hyp, truncate=False):
+    """Levenshtein over words. Returns (edits, n_ref).
+
+    With truncate=True the hypothesis is cut to the reference length before
+    aligning. Both sequences are then at most n_ref long, so the edit distance
+    cannot exceed n_ref and WER is bounded at 100% without needing a cap. Use it
+    where the decoder may fail to emit EOS and run to the token limit: the
+    resulting insertions are a decoding artifact rather than a transcription
+    error, and unbounded they dominate the score. Off by default so the existing
+    suites keep reporting plain WER.
+    """
     r, h = norm(ref).split(), norm(hyp).split()
     if not r:
         return 0, 0
+    if truncate:
+        h = h[:len(r)]
     prev = list(range(len(h) + 1))
     for i, rw in enumerate(r, 1):
         cur = [i]
@@ -138,7 +149,7 @@ def main():
     ).to(device).eval()
     proc = Qwen2_5OmniProcessor.from_pretrained(args.model)
     tok = proc.tokenizer
-    eos_id = tok.convert_tokens_to_ids("<|im_end|>")
+    eos_ids = [tok.convert_tokens_to_ids(t) for t in ("<|im_end|>", "<|endoftext|>")]
     print("[load] OK\n", flush=True)
 
     tot_e = tot_n = 0
@@ -154,7 +165,7 @@ def main():
                       return_tensors="pt", padding=True).to(device)
         with torch.no_grad():
             out = thinker.generate(**inputs, max_new_tokens=100, do_sample=False,
-                                   eos_token_id=eos_id, pad_token_id=tok.pad_token_id)
+                                   eos_token_id=eos_ids, pad_token_id=tok.pad_token_id)
         raw = tok.decode(out[0][inputs["input_ids"].shape[1]:], skip_special_tokens=True)
         # Unstripped, the model's chat wrapper scores as insertions: a PERFECT English
         # transcription measured 200% that way. Score the transcription, not the chatter.
