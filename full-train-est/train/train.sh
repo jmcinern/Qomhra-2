@@ -19,7 +19,9 @@ REPO_ROOT=/scratch/project_465002364/Qomhra-2          # Qomhra-2 git repo (this
 CONTAINER_ROOT=/scratch/project_465002364/Qomhra       # shared container/envs from Qomhra
 TRAIN_DIR=${REPO_ROOT}/full-train-est/train
 OUTPUT_DIR=${TRAIN_DIR}/output
-SIF=${CONTAINER_ROOT}/Qomhra_v2.sif
+# Container: defaults to the shared Qomhra_v2.sif; override with QOMHRA_SIF=... to
+# A/B a different image (e.g. the LAIFS lumi-multitorch container with flash-attn).
+SIF=${QOMHRA_SIF:-${CONTAINER_ROOT}/Qomhra_v2.sif}
 SQSH=${TRAIN_DIR}/qomhra-env.sqsh
 export HF_HOME=${TRAIN_DIR}/hf_cache
 export MPICH_GPU_SUPPORT_ENABLED=1

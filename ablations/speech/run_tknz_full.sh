@@ -15,7 +15,9 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=128
 #SBATCH --mem=200G
-#SBATCH --time=03:00:00
+# The measured 128-worker throughput is ~184 audio-hours/hour.  An 800-hour
+# shard therefore needs ~4.35 hours before startup/tail overhead.
+#SBATCH --time=06:00:00
 #SBATCH --output=output/tknz_full_%A_%a.log
 
 set -euo pipefail

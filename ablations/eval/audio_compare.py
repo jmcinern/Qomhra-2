@@ -53,7 +53,7 @@ def read_wav(path):
 @torch.no_grad()
 def ask(thinker, proc, wav, path, instr, device, max_new_tokens=100):
     tok = proc.tokenizer
-    eos_id = tok.convert_tokens_to_ids("<|im_end|>")
+    eos_ids = [tok.convert_tokens_to_ids(t) for t in ("<|im_end|>", "<|endoftext|>")]
     conv = [{"role": "system", "content": [{"type": "text", "text": SYS}]},
             {"role": "user", "content": [{"type": "text", "text": instr},
                                          {"type": "audio", "audio": path}]}]
@@ -61,7 +61,7 @@ def ask(thinker, proc, wav, path, instr, device, max_new_tokens=100):
     inputs = proc(text=text, audio=[wav], sampling_rate=16000,
                   return_tensors="pt", padding=True).to(device)
     out = thinker.generate(**inputs, max_new_tokens=max_new_tokens, do_sample=False,
-                           eos_token_id=eos_id, pad_token_id=tok.pad_token_id)
+                           eos_token_id=eos_ids, pad_token_id=tok.pad_token_id)
     return tok.decode(out[0][inputs["input_ids"].shape[1]:], skip_special_tokens=True)
 
 

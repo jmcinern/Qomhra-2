@@ -36,6 +36,13 @@ import numpy as np
 
 SAMPLE_RATE = 16000
 LAYER = 9  # hidden_states[9] == mHuBERT-147 layer 9 (tuple length 13)
+# The seven convolutional layers have a 400-sample receptive field and a
+# 320-sample (20 ms) total stride.  A bare 30 s block therefore emits 1499
+# frames, not 1500.  Adjacent blocks overlap by the 80-sample lookahead below
+# so concatenated outputs retain one globally regular 50 Hz timeline.
+FEATURE_STRIDE = 320
+FEATURE_RECEPTIVE_FIELD = 400
+RIGHT_CONTEXT = FEATURE_RECEPTIVE_FIELD - FEATURE_STRIDE
 
 # ---- globals populated in the parent (index) and per-worker (model) ----
 _INDEX = None
@@ -89,16 +96,35 @@ def _load_chunk(path, start, stop):
 
 
 def tokenize_chunk(task):
-    """task = (path, chunk_idx, start, stop). Returns (path, chunk_idx, units)."""
+    """Tokenize one valid block plus enough right context for its last frame.
+
+    ``task = (path, chunk_idx, start, read_stop, target_input_samples)``.
+    Non-final blocks read 80 samples from the following block.  A recording's
+    final block is right-zero-padded instead.  In both cases every valid block
+    contributes exactly ``ceil(valid_16k_samples / 320)`` units, so concatenating
+    chunks produces a cache that can be indexed at 50 Hz without boundary drift.
+    """
     import torch
-    path, chunk_idx, start, stop = task
-    wav = _load_chunk(path, start, stop)
+    path, chunk_idx, start, read_stop, target_input_samples = task
+    wav = _load_chunk(path, start, read_stop)
+    if wav.shape[0] < target_input_samples:
+        wav = np.pad(wav, (0, target_input_samples - wav.shape[0]))
+    elif wav.shape[0] > target_input_samples:
+        wav = wav[:target_input_samples]
     inputs = _PROCESSOR(wav, sampling_rate=SAMPLE_RATE, return_tensors="pt")
     with torch.no_grad():
         feats = _MODEL(inputs.input_values,
                        output_hidden_states=True).hidden_states[LAYER]
     feats = feats.squeeze(0).numpy().astype("float32")  # [T, 768]
     units = get_centroids_index(feats, _INDEX, _INDEX_IVF)[:, 0].astype(np.uint16)
+    expected = (
+        (target_input_samples - FEATURE_RECEPTIVE_FIELD) // FEATURE_STRIDE + 1
+    )
+    if units.shape != (expected,):
+        raise RuntimeError(
+            f"{path} chunk {chunk_idx}: mHuBERT emitted {units.shape[0]} frames, "
+            f"expected {expected} for {target_input_samples} input samples"
+        )
     return path, chunk_idx, units
 
 
@@ -122,14 +148,25 @@ def read_manifest(manifest, audio_root):
 def build_tasks(rows, chunk_s):
     """Split each file into <=chunk_s chunks -> flat task list (longest first)."""
     import soundfile as sf
-    chunk_frames = chunk_s * SAMPLE_RATE
     tasks, totals = [], {}
     for _, path in rows:
-        n = sf.info(path).frames
+        info = sf.info(path)
+        n, sr = info.frames, info.samplerate
         totals[path] = n
+        chunk_frames = int(round(chunk_s * sr))
+        right_context_src = int(np.ceil(RIGHT_CONTEXT * sr / SAMPLE_RATE))
         idx = 0
         for start in range(0, n, chunk_frames):
-            tasks.append((path, idx, start, min(start + chunk_frames, n)))
+            valid_stop = min(start + chunk_frames, n)
+            read_stop = min(valid_stop + right_context_src, n)
+            valid_16k = int(round((valid_stop - start) * SAMPLE_RATE / sr))
+            n_output = (valid_16k + FEATURE_STRIDE - 1) // FEATURE_STRIDE
+            target_input_samples = (
+                (n_output - 1) * FEATURE_STRIDE + FEATURE_RECEPTIVE_FIELD
+            )
+            tasks.append(
+                (path, idx, start, read_stop, target_input_samples)
+            )
             idx += 1
     tasks.sort(key=lambda t: totals[t[0]], reverse=True)  # balance long files
     return tasks
@@ -148,7 +185,12 @@ def main():
     ap.add_argument("--audio-root", required=True)
     ap.add_argument("--model-dir", required=True)
     ap.add_argument("--faiss-index", required=True)
-    ap.add_argument("--out-dir", required=True)
+    output = ap.add_mutually_exclusive_group(required=True)
+    output.add_argument("--out-dir")
+    output.add_argument(
+        "--parquet-out",
+        help="write one Parquet unit store instead of one .npy file per utterance",
+    )
     ap.add_argument("--workers", type=int, default=128)
     ap.add_argument("--chunk-s", type=int, default=30)
     ap.add_argument("--limit", type=int, default=0, help="debug: first N files only")
@@ -161,10 +203,13 @@ def main():
         rows = rows[: args.limit]
     print(f"files: {len(rows)}", flush=True)
 
+    if args.parquet_out and os.path.exists(args.parquet_out) and not args.overwrite:
+        print(f"nothing to do (Parquet already exists): {args.parquet_out}", flush=True)
+        return
+
     # Scale addition: file-level skip-existing so the SLURM array is idempotent
-    # and restartable. out_path() only makes the parent dir, so this check is a
-    # pure existence test; --overwrite forces a full re-run of the shard.
-    if not args.overwrite:
+    # and restartable. This applies only to the legacy per-file output mode.
+    if args.out_dir and not args.overwrite:
         n_before = len(rows)
         rows = [(label, p) for (label, p) in rows
                 if not os.path.exists(out_path(args.out_dir, args.audio_root, p))]
@@ -199,15 +244,40 @@ def main():
                 print(f"  {done}/{len(tasks)} chunks", flush=True)
 
     n_units = 0
-    for _, path in rows:
+    packed = []
+    for label, path in rows:
         chunks = results.get(path, {})
         if not chunks:
             print(f"WARN no output: {path}", file=sys.stderr)
             continue
         units = np.concatenate([chunks[i] for i in sorted(chunks)])
-        np.save(out_path(args.out_dir, args.audio_root, path), units)
+        if args.parquet_out:
+            packed.append((label, os.path.basename(path), units))
+        else:
+            np.save(out_path(args.out_dir, args.audio_root, path), units)
         n_units += units.shape[0]
-    print(f"DONE files={len(rows)} units={n_units} out={args.out_dir}", flush=True)
+    if args.parquet_out:
+        import pyarrow as pa
+        import pyarrow.parquet as pq
+
+        os.makedirs(os.path.dirname(os.path.abspath(args.parquet_out)), exist_ok=True)
+        temp = args.parquet_out + ".tmp"
+        pq.write_table(
+            pa.table(
+                {
+                    "dest_label": [row[0] for row in packed],
+                    "filename": [row[1] for row in packed],
+                    "units": pa.array(
+                        [row[2] for row in packed], type=pa.list_(pa.uint16())
+                    ),
+                }
+            ),
+            temp,
+            compression="zstd",
+        )
+        os.replace(temp, args.parquet_out)
+    destination = args.parquet_out or args.out_dir
+    print(f"DONE files={len(rows)} units={n_units} out={destination}", flush=True)
 
 
 if __name__ == "__main__":

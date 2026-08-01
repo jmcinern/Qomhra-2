@@ -68,7 +68,7 @@ def check(model, mel, lens, use_sdpa, tower_sdpa):
 
 def main():
     with initialize(config_path="qomhra/configs", version_base="1.1"):
-        args = compose(config_name="omni_speech")
+        args = compose(config_name="legacy/omni_speech")
 
     model, _ = M.get_model(args)
     model = model.cuda().to(torch.bfloat16)

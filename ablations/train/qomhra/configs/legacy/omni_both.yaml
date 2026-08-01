@@ -1,3 +1,6 @@
+# @package _global_
+# ^ required: this config sits in a subdirectory, and without it Hydra would
+#   namespace every key under `legacy.` instead of the top level.
 # Ablation 3 — "Text + Speech": text + ASR transcripts + speech, train everything.
 #
 # Batches are pure-text OR pure-audio (there is no aligned audio/text pairing in this
@@ -5,18 +8,20 @@
 # fraction of global steps that are text; the schedule is seeded and rank-independent,
 # so every rank runs the same modality on the same step (FSDP requires it — see data.py).
 defaults:
-  - base
+  # Absolute (leading /): this config now lives in legacy/, and a bare `base`
+  # would resolve to legacy/base.yaml, which does not exist.
+  - /base
   - _self_
 
 model:
   # This ablation alternates text and audio steps, and the audio steps are the ones that
-  # OOM without checkpointing (they run eager attention — see omni_speech.yaml). The
+  # OOM without checkpointing (they run eager attention — see omni_speech.yaml in this
+  # same legacy/ directory). The
   # setting is global to the run, so the audio steps decide it: true.
   gradient_checkpointing: true
 
 task:
   modality: both
-  text_step_frac: 0.5
 
 freeze:
   mode: all

@@ -31,7 +31,15 @@ Components: Freeze all but LLM
 Data: Speech
 Components: Train  all
 
-3. Text + Speech 
+3. Text + Speech
+
+- samples are speech OR text
+
+4. Text + Speech + ASR Data
+
+- Take the pretrained model from 3 at 90% of training corpus processed
+- FIll all samples of the remaining 10% ASR training data: e.g. speech with its aligned transcript
+
 
 Data: Text + ASR Transcripts + Speech 
 Components: Train all

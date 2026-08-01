@@ -256,6 +256,14 @@ def stratified_questions(clips, n_questions, seed):
                 (str(question["question_id"]), clip["snippet_id"])
             )
     years = sorted(by_year)
+    total_available = sum(len(v) for v in by_year.values())
+    if n_questions <= 0 or n_questions >= total_available:
+        # Full-set run: keep every question. Stratification exists to pick a
+        # balanced subset, and per-year rounding means it can never land on the
+        # exact total, so asking for all of them must bypass it entirely.
+        print(f"[data] full set: {total_available} questions across "
+              f"{len(years)} years", flush=True)
+        return clips
     if n_questions < len(years):
         years = years[:n_questions]
     base, remainder = divmod(n_questions, len(years))

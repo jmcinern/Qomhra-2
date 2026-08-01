@@ -31,12 +31,15 @@ class Logger:
             self.wandb_run = wandb.init(
                 project=args.logging.get("wandb_project", "qomhra-train-est"),
                 name=args.logging.get("wandb_run_name", None) or None,
+                id=args.logging.get("wandb_run_id", None) or None,
+                resume=args.logging.get("wandb_resume", "allow"),
                 config=OmegaConf.to_container(args, resolve=True),
             )
         else:
             self.wandb_run = None
 
-    def log_run_banner(self, args, vocab, num_params, global_batch):
+    def log_run_banner(self, args, vocab, num_params, global_batches,
+                       total_steps, step_counts):
         wandb_url = self.wandb_run.url if self.wandb_run is not None else "(wandb off)"
         msg = [
             "",
@@ -47,8 +50,8 @@ class Logger:
             f"vocab         : {vocab:,}",
             f"seq len       : {args.data.seq_len}",
             f"micro batch   : {args.data.micro_batch_size} / GCD   grad_acc {args.optim.grad_acc}",
-            f"global batch  : {global_batch} seqs  ({global_batch * args.data.seq_len:,} tok/step)",
-            f"max steps     : {args.optim.total_steps}",
+            f"global batches: {global_batches}",
+            f"epoch plan    : {step_counts} -> {total_steps:,} optimizer steps",
             f"wandb         : {wandb_url}",
             "============================================",
             "",

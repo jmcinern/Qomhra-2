@@ -92,11 +92,29 @@ class LossWindow:
     def reset(self):
         self.sums, self.counts = {}, {}
 
-    def add(self, out, grad_acc):
+    def add(self, out, grad_acc, modality=None):
         # loss_aligned is ablation 4's speech->transcript CE. Kept separate from
         # loss_text: same units (nats/token) but a different task, and averaging them
         # would hide which one is moving.
-        for key in ("loss_text", "loss_audio", "loss_aligned", "audio_target_var"):
+        # unit_* are the discrete-target diagnostics: unit_acc is only meaningful
+        # against unit_repeat_acc, the "predict the current unit again" floor.
+        # Discrete text, unit-NTP, and ASR all use the same causal-LM forward, whose
+        # model-level output is generically called loss_text. Relabel that metric
+        # using the scheduler stream so mixed runs get three honest W&B curves.
+        loss_key = {
+            "units": "loss_units",
+            "asr": "loss_asr",
+        }.get(modality, "loss_text")
+        if "loss_text" in out:
+            self.sums[loss_key] = (
+                self.sums.get(loss_key, 0.0) + float(out["loss_text"]) / grad_acc
+            )
+            self.counts[loss_key] = (
+                self.counts.get(loss_key, 0.0) + 1.0 / grad_acc
+            )
+
+        for key in ("loss_audio", "loss_aligned", "audio_target_var",
+                    "unit_acc", "unit_repeat_acc", "unit_pred_entropy"):
             if key in out:
                 self.sums[key] = self.sums.get(key, 0.0) + float(out[key]) / grad_acc
                 self.counts[key] = self.counts.get(key, 0.0) + 1.0 / grad_acc
@@ -107,8 +125,49 @@ class LossWindow:
         return {k: self.sums[k] / self.counts[k] for k in self.sums}
 
 
+@torch.no_grad()
+def evaluate_unit_ntp(model, dataloader, accelerator, args, logger, label, step):
+    """Distributed causal CE/accuracy on the fixed recording-disjoint unit split."""
+    if dataloader is None:
+        return {}
+    model.eval()
+    sdpa_ctx = build_sdpa_ctx(args, logger)
+    totals = torch.zeros(6, device=accelerator.device, dtype=torch.float64)
+    for batch in dataloader:
+        batch = {
+            key: value.to(accelerator.device, non_blocking=True)
+            if torch.is_tensor(value) else value
+            for key, value in batch.items()
+        }
+        batch["compute_metrics"] = True
+        with sdpa_ctx():
+            out = model(**batch)
+        n = int(out["n_text_tokens"])
+        totals[0] += out["loss"].double() * n
+        totals[1] += n
+        totals[2] += out["token_correct"].double()
+        totals[3] += out["unit_tokens"].double()
+        totals[4] += out["unit_restricted_correct"].double()
+        totals[5] += out["unit_correct"].double()
+    totals = accelerator.reduce(totals, reduction="sum")
+    n = max(float(totals[1]), 1.0)
+    unit_n = max(float(totals[3]), 1.0)
+    stats = {
+        "loss": float(totals[0]) / n,
+        "perplexity": float(torch.exp((totals[0] / n).clamp(max=80))),
+        "top1_accuracy": float(totals[2]) / n,
+        "unit_full_vocab_accuracy": float(totals[5]) / unit_n,
+        "unit_restricted_accuracy": float(totals[4]) / unit_n,
+        "tokens": int(totals[1]),
+    }
+    logger.log_stats(stats, step=step, prefix=f"validation/{label}/")
+    logger.log_message(f"[validation:{label}] {stats}")
+    model.train()
+    return stats
+
+
 def train(model, dataloaders, accelerator, optimizer, lr_scheduler, logger, args,
-          global_batch, scheduler=None):
+          total_steps, scheduler, step_offset=0):
     model.train()
 
     grad_acc = args.optim.grad_acc
@@ -120,19 +179,34 @@ def train(model, dataloaders, accelerator, optimizer, lr_scheduler, logger, args
     iters = {k: iter(v) for k, v in dataloaders.items()}
     ckpt_cfg = args.get("checkpoint", {})
     ckpt_dir = ckpt_cfg.get("dir", None) or os.path.join(os.getcwd(), "checkpoints")
-    every = int(ckpt_cfg.get("every_steps", 0) or 0)
+    milestone_steps = {
+        max(1, min(total_steps, int(round(total_steps * float(frac)))))
+        for frac in ckpt_cfg.get("at_fractions", [])
+    }
+    milestone_steps.discard(total_steps)  # final save below owns 100%
 
     window = LossWindow()
     window_start = time.time()
     window_units = 0            # text tokens or audio frames seen this window
 
     optimizer.zero_grad(set_to_none=True)
-    for step in range(1, args.optim.total_steps + 1):
+    for step in range(1, total_steps + 1):
         # One modality for the whole step, identical on every rank.
-        modality = scheduler.modality(step - 1) if scheduler else next(iter(iters))
+        modality = scheduler.modality(step - 1)
 
         for micro in range(grad_acc):
-            batch = next(iters[modality])
+            try:
+                batch = next(iters[modality])
+            except StopIteration as exc:
+                raise RuntimeError(
+                    f"{modality} loader exhausted at step {step}, micro-batch {micro}; "
+                    "the finite epoch plan and loader cardinality disagree"
+                ) from exc
+            batch = {
+                key: value.to(accelerator.device, non_blocking=True)
+                if torch.is_tensor(value) else value
+                for key, value in batch.items()
+            }
             # Only all-reduce grads on the accumulation boundary; skip the comms on
             # intermediate micro-batches (mathematically identical, far less RCCL).
             is_last = (micro == grad_acc - 1)
@@ -140,7 +214,7 @@ def train(model, dataloaders, accelerator, optimizer, lr_scheduler, logger, args
             with sync_ctx, sdpa_ctx():
                 out = model(**batch)
                 accelerator.backward(out["loss"] / grad_acc)
-            window.add(out, grad_acc)
+            window.add(out, grad_acc, modality=modality)
             window_units += int(out.get("n_text_tokens", 0) or
                                 out.get("n_audio_frames", 0))
             if profiling:
@@ -168,18 +242,26 @@ def train(model, dataloaders, accelerator, optimizer, lr_scheduler, logger, args
             stats["units_per_second"] = (
                 window_units * accelerator.num_processes / max(elapsed, 1e-9)
             )
-            logger.log_stats(stats, step=step, prefix="train/")
+            logger.log_stats(stats, step=step_offset + step, prefix="train/")
             window.reset()
             window_start = time.time()
             window_units = 0
 
-        if every and step % every == 0:
-            ckpt_utils.save(model, accelerator, args, step, ckpt_dir)
+        if step in milestone_steps:
+            ckpt_utils.save(
+                model, accelerator, args, step_offset + step, ckpt_dir,
+                optimizer=optimizer, lr_scheduler=lr_scheduler,
+            )
             if accelerator.is_main_process:
                 ckpt_utils.prune(ckpt_dir, ckpt_cfg.get("keep_last", 2))
 
     profiler.__exit__(None, None, None)
 
     if ckpt_cfg.get("save_final", True):
-        out = ckpt_utils.save(model, accelerator, args, args.optim.total_steps, ckpt_dir)
+        out = ckpt_utils.save(
+            model, accelerator, args, step_offset + total_steps, ckpt_dir,
+            optimizer=optimizer, lr_scheduler=lr_scheduler,
+        )
+        if accelerator.is_main_process:
+            ckpt_utils.prune(ckpt_dir, ckpt_cfg.get("keep_last", 3))
         logger.log_message(f"[ckpt] final checkpoint -> {out}")

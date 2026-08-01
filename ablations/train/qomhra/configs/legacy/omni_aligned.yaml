@@ -1,55 +1,49 @@
-# Ablation 4 — "Text + Speech + ASR Data": resume from `both` and train on aligned
-# (speech, transcript) pairs.
+# @package _global_
+# ^ required: this config sits in a subdirectory, and without it Hydra would
+#   namespace every key under `legacy.` instead of the top level.
+# Ablation 4 — final 10% continuation with 10% aligned-ASR optimizer steps.
 #
-# This is the ONLY ablation that connects speech to text. Ablations 2/3 train audio by
-# next-audio-frame regression, which never tells the encoder what was said: measured, it
-# leaves the encoder hearing Irish accurately but rendering it through an English lexicon
-# ("Rudaí deasa" -> "ready does the", "Barda ach" -> "The brother"), and the speech
-# checkpoint scores 148.6% WER vs the baseline's 107.7% — everything at the ~100% floor,
-# i.e. zero words correct. Irish ASR WER only becomes a meaningful metric once something
-# actually recognises Irish, which is what this ablation is for.
-#
-# Per the plan this is the last 10% of training: take `both` at 90% and fill the
-# remainder with 50% text / 50% speech of which 10% is aligned. This config is the
-# aligned-only probe of that idea — the fastest test of "does the ASR data help at all".
-# If WER moves off the floor here, the mixture is worth building; if it does not, the
-# mixture would only have diluted it.
-#
-#   sbatch --nodes=1 train.sh --config-name omni_aligned \
-#     model.init_from=<both_run>/checkpoints/step_000250 \
-#     optim.total_steps=120 optim.grad_acc=2
+# Resume from ablation 3's 90%-epoch checkpoint. The finite loaders reproduce the
+# same seeded corpus order and expose only its final 10%. All remaining original
+# text/audio steps are retained; aligned steps are added so they form 10% of this
+# phase rather than replacing original corpus data.
 defaults:
-  - base
+  # Absolute (leading /): this config now lives in legacy/, and a bare `base`
+  # would resolve to legacy/base.yaml, which does not exist.
+  - /base
   - _self_
 
 task:
-  modality: aligned
+  modality: continuation
+  aligned_step_frac: 0.10
 
 freeze:
-  mode: all                        # encoder + adapter + LLM all train
+  mode: all
 
 model:
-  # Set on the command line: the `both` checkpoint to resume from. Without it this
-  # trains from stock Omni, which is a different experiment.
+  # Required: model.init_from=<ablation-3-run>/checkpoints/step_<90-percent>
   init_from: null
-  # Required here for the same reason as omni_speech: this branch runs eager attention,
-  # so base.yaml's `false` (a text-only win) overflows HBM. See omni_speech.yaml.
   gradient_checkpointing: true
 
 data:
-  source: aligned
-  aligned_jsonl: /scratch/project_465002364/audio/conversations/aligned_setup.jsonl
-  aligned_root: /scratch/project_465002364/audio
-  # Utterances are short (median 3.8 s, 95% under 10 s), so the mel side is small and
-  # the batch can be wider than the 30 s windows of the unlabelled audio path.
+  source: continuation
+  epoch_start: 0.90
+  epoch_end: 1.0
+  text_bin:
+    - ${paths.tokens}/shards/hplt3_mono__rg*.bin
+    - ${paths.tokens}/shards/finepdfs__rg*.bin
+    - ${paths.tokens}/shards/corpas_full_clean__rg*.bin
+    - ${paths.tokens}/shards/nce__rg*.bin
+    - ${paths.tokens}/shards/uni-archives__rg*.bin
+    - ${paths.tokens}/shards/oireachtas_ga__rg*.bin
+    - ${paths.tokens}/shards/conversations_capr__rg*.bin
+  aligned_parquet: /scratch/project_465002364/Denorm/train/data/supervised_ASR.parquet
+  aligned_root: null               # parquet paths are already absolute on LUMI
   aligned_micro_batch_size: 4
 
 optim:
-  # 10 h / 8,010 utterances is a small pool — it will repeat rather than run out, so
-  # keep the run short and watch for overfitting.
   lr: 2.0e-5
-  total_steps: 120
-  warmup_steps: 10
+  warmup_fraction: 0.05
 
 logging:
-  wandb_run_name: ablation-aligned
+  wandb_run_name: ablation-aligned-10pct

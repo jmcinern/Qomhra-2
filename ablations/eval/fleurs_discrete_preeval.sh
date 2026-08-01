@@ -29,6 +29,8 @@ CONDITION=${3:-all}
 # See partial10_benchmark.sh: 1.25 was the original gate, 2.5 produced the numbers in
 # `fleurs_numbers_final.csv`. TAG keeps a rerun at a different budget from silently
 # overwriting the file it should be compared against.
+N=${N:-34}
+MAXU=${MAXU:-760}
 MULT=${MULT:-1.25}
 TAG=${TAG:-}
 
@@ -39,7 +41,7 @@ ENV=${REPO}/full-train-est/train/qomhra-env.sqsh
 DATA=${EVAL}/data/fleurs_parallel_test.parquet
 UNITS=/scratch/project_465002364/audio/mexa_fleurs_units/fleurs_mexa_units.parquet
 ROOT=${REPO}/ablations/train/output/discrete_rerun
-OUT=${EVAL}/output/fleurs_grid_p10_${ARM}_${SHOTS}shot_n34_${CONDITION}${TAG}.json
+OUT=${EVAL}/output/fleurs_grid_p10_${ARM}_${SHOTS}shot_n${N}_${CONDITION}${TAG}.json
 
 if [[ "${CONDITION}" == all ]]; then
   CONDITION_ARGS=()
@@ -77,8 +79,8 @@ srun singularity exec \
     --units "${UNITS}" \
     --label "${ARM}" \
     --shots "${SHOTS}" \
-    --n 34 \
-    --max-source-units 760 \
+    --n "${N}" \
+    --max-source-units "${MAXU}" \
     --max-new-tokens 192 \
     --reference-budget-multiplier "${MULT}" --min-new-tokens 8 \
     --mismatch-controls \

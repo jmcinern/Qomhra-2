@@ -31,3 +31,28 @@ qomhra-venv/
 __pycache__/
 *.pyc
 wandb/
+
+# CLUAS exam material — questions and official marking schemes from
+# examinations.ie are not ours to redistribute. Scores are publishable,
+# the source items are not. The builder and evaluator are tracked; the
+# data, judge packets, and per-answer files are not.
+cluas-marking-01-08/
+**/cluas_*.parquet
+**/cluas_*.parquet.demos.json
+Qomhra2-Paper/evals/cluas_long.csv
+**/cluas_judge_packets/
+**/cluas_sonnet_packets*/
+**/cluas_sonnet_scored*/
+**/cluas_raw_outputs*.csv
+
+# The paper is its own repository (jmcinern/Qomhra2-Paper), not a submodule.
+Qomhra2-Paper/
+
+# Corpora and profiler traces. These are regenerable and live on LUMI scratch;
+# the largest is 1.1 GB, well over GitHub's per-file limit. The scripts that
+# build them are tracked, the outputs are not.
+ablations/capr/data/
+ablations/profiles/
+**/iwslt2023_*.parquet
+**/fleurs_*.parquet
+**/*.wav

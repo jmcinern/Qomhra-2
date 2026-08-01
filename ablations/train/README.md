@@ -1,61 +1,87 @@
-# Ablations — training rig (real base models)
+# Qomhra whole-corpus ablations
 
-Adapted from the validated `full-train-est/train/` timing rig (FSDP + Accelerate +
-Hydra, combined text+audio vocab, W&B, profiler, LUMI SLURM launcher). The change
-for ablations: train **real pretrained base models** with real loss curves, not a
-random-init model for timing.
+Continual pretraining of the Qwen2.5-Omni-3B Thinker on Irish text, unlabelled
+speech, and aligned ASR supervision. Real runs are finite **one-epoch** corpus
+passes; their step counts are derived at startup rather than configured by hand.
 
-Two base models × three modality mixtures (Text / Speech / ASR), equalised by token
-budget for clean, unconfounded comparison.
+## What a loader does
 
-## What differs from the timing rig
-- `qomhra/model.py` — loads pretrained weights (`from_pretrained`) + resizes the
-  embedding table to the combined vocab. Qwen2.5-Omni loads via its multimodal
-  wrapper; we train its **Thinker text decoder** (`model.backbone_attr=thinker`).
-- `qomhra/main.py` — FSDP transformer auto-wrap is **model-generic**: the decoder
-  layer class is resolved from the model's `_no_split_modules` (not hardcoded to
-  Qwen3DecoderLayer), so one launcher trains both models.
-- `qomhra/configs/` — `base.yaml` (shared) + `qwen3p5_2b.yaml`, `qwen25_omni_3b.yaml`.
-- `data.py`, `train_utils.py`, `logging_utils.py` — reused from the rig unchanged
-  (`data.py` already reads the real LUMI token formats).
+A dataset defines examples; a PyTorch `DataLoader` batches them and overlaps CPU
+preprocessing with GPU training.
 
-## Data / tokenization
-- Text ✅ and ASR ✅ (`conversations_ga`) are tokenized on LUMI, but with the
-  **Qwen3-8B tokenizer**. Qwen3.5-2B likely shares that tokenizer (verify). **Omni
-  uses the Qwen2.5 tokenizer → re-tokenize** text+ASR with
-  `../../full-train-est/tokenize_corpus.py --model <omni tokenizer dir> --sep-id <id>`
-  into `ablations/tokens_qwen25/`, then update `qwen25_omni_3b.yaml`'s `text_bin`,
-  `text_vocab`, `sep_id`, `audio_offset` from the emitted `meta.json`.
-- Speech (mHuBERT units) — only a ~10 h subset on LUMI today; the bulk transfer +
-  tokenization is Job 1. The rig's `audio_units_dir` already points at the subset.
+- **Text:** the Omni-tokenized corpus is shuffled and packed into 4,096-token
+  windows.
+- **Speech:** `manifest.tsv` durations define <=30 s chunks. WAV loading and mel
+  extraction run in CPU workers while the GPU trains the previous batch.
+- **Aligned ASR:** rows come from
+  `/scratch/project_465002364/Denorm/train/data/supervised_ASR.parquet`; audio paths
+  are already absolute. A stable 2.5% hash split is withheld from training.
 
-## Run on LUMI
+Each dataset is shuffled deterministically, split across global ranks exactly once,
+and padded only enough to give every rank complete optimizer steps. Loaders are not
+passed through Accelerate's data preparation because they already shard themselves;
+doing both would silently shard the corpus twice.
+
+## The four runs
+
+**The original speech runs are superseded.** `omni_speech`, `omni_both` and
+`omni_aligned` trained speech as continuous audio-encoder frames with a next-frame
+regression objective; it did not learn, and those three configs have moved to
+`qomhra/configs/legacy/`. See `legacy/README.md` for what replaced each and why.
+The rerun treats speech as discrete mHuBERT unit tokens — the `omni_unit_*`
+configs. Its ablation set is defined in `QOMHRA-2-RERUN-DISCRETE-SPEECH.md` at the
+repo root, not here.
+
 ```bash
 cd /scratch/project_465002364/Qomhra-2/ablations/train
 
-# 1. one-off: cache both base models offline (login node, online)
-bash cache_models.sh
-
-# 2. one-off: build the package overlay (hydra-core + pynvml + liger-kernel)
-bash setup_env.sh /scratch/project_465002364/Qomhra/Qomhra_v2.sif
-
-# 3. one-off: wandb key (gitignored)
-echo 'YOUR_WANDB_KEY' > /scratch/project_465002364/Qomhra-2/.wandb_key && chmod 600 $_
-
-# 4. smoke test each model (interactive salloc or debug queue, ~30 steps)
-sbatch train.sh --config-name qwen3p5_2b   profile.enabled=true optim.total_steps=30
-sbatch train.sh --config-name qwen25_omni_3b profile.enabled=true optim.total_steps=30
+sbatch --nodes=2 train.sh --config-name omni_text
 ```
 
-Override any knob on the CLI (Hydra), e.g. `data.source=synthetic`,
-`data.audio_token_budget=1800000`, `data.micro_batch_size=2`.
+Text still consumes one complete selected corpus epoch.
 
-## Smoke-test success signals
-- `accelerator.state`: `distributed_type=FSDP`, `num_processes=8`.
-- `[fsdp] wrapping layer classes: [...]` logs the resolved decoder-layer class.
-- Embeddings resized to the combined vocab (banner `vocab (comb.)`).
-- **Loss starts LOW on real Irish text** (pretrained weights loaded), not
-  ≈ln(vocab) — the key signal vs the random-init rig. Decreasing loss on real
-  tokens = correct.
-- Balanced GPU memory across 8 GCDs (`rocm-smi`), no OOM; W&B run appears; profiler
-  `*.pt.trace.json` written when `profile.enabled=true`.
+## Smoke and scaling probes
+
+`optim.max_steps` is null for real runs. Set it only for a deliberate probe:
+
+```bash
+sbatch --nodes=1 train.sh --config-name omni_unit_ntp_100h \
+  optim.max_steps=40 checkpoint.save_final=false checkpoint.at_fractions=[]
+sbatch --nodes=2 train.sh --config-name omni_unit_ntp_100h \
+  optim.max_steps=40 checkpoint.save_final=false checkpoint.at_fractions=[]
+```
+
+Compare `train/seconds_per_step` and `train/units_per_second`. Two nodes should
+approximately double global units/s without a large step-time regression.
+
+## FSDP topology
+
+The multi-node default is `HYBRID_SHARD`: parameters are sharded across the eight
+GCDs within each node and that shard group is replicated across nodes. Gradients are
+reduced in bf16, first within the node and then across replica groups over Slingshot.
+At startup the rig logs and validates:
+
+```text
+[fsdp] topology: strategy=hybrid_shard, world=16, local=8,
+                 shard_group=8, replica_group=2
+```
+
+Training aborts if a two-node run does not resolve to that topology.
+
+## Checkpoints and evaluation
+
+Full-state checkpoint gathers are expensive, so `base.yaml` defaults to saving at
+50%, 90% and final, keeping the last three.
+
+**The default is not what the runs actually did.** Every real run so far passed its
+own `checkpoint.at_fractions` and `keep_last` on the sbatch line, and those
+overrides win. The superseded `both` run
+(`output/2026-07-18_10-05-47_19984354`) was launched with
+`at_fractions=[0.1..0.9] keep_last=12` and holds **ten** checkpoints, one per 10%.
+The discrete ASR runs use `[0.2, 0.4, 0.6, 0.8]`.
+
+To know what a given run saved, read its own `.hydra/overrides.yaml` — not this
+file and not `base.yaml`.
+
+Evaluation scripts under `../eval/` load these full state dicts on one GCD for
+before/after comparisons.

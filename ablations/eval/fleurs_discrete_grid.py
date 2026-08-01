@@ -156,11 +156,19 @@ def choose_ids(unit_rows, n: int, demo_pool_size: int, max_source_units: int):
     demos = sorted(
         parallel, key=lambda item_id: (max(parallel[item_id].values()), item_id)
     )[:demo_pool_size]
+    # max_source_units <= 0 disables the filter. It bounds the *speech* prompt
+    # against the 1024-token training context, so it is meaningful only for the
+    # speech conditions; applying it to text_ga2en/text_en2ga would discard
+    # sentences over an audio budget those prompts never spend.
     eligible = [
         item_id for item_id in sorted(parallel)
         if item_id not in set(demos)
-        and max(parallel[item_id].values()) <= max_source_units
+        and (max_source_units <= 0
+             or max(parallel[item_id].values()) <= max_source_units)
     ]
+    if n <= 0:
+        # 0 = the full scored set: every parallel id fitting the source budget.
+        n = len(eligible)
     if len(eligible) < n:
         raise ValueError(
             f"only {len(eligible)} parallel IDs fit <= {max_source_units} units; "
@@ -537,7 +545,15 @@ def main():
     unknown = set(args.conditions) - set(CONDITIONS)
     if unknown:
         parser.error(f"unknown conditions: {sorted(unknown)}")
-    if args.mismatch_controls and args.n < 2:
+    if args.max_source_units <= 0:
+        speechy = [c for c in args.conditions
+                   if CONDITIONS[c]["input_modality"] == "speech"]
+        if speechy:
+            parser.error(
+                "--max-source-units 0 removes the bound that keeps a speech prompt "
+                f"inside the {MAX_SEQUENCE_LENGTH}-token training context; it is only "
+                f"valid for text conditions, but {speechy} were requested")
+    if args.mismatch_controls and 0 < args.n < 2:
         parser.error("--mismatch-controls requires --n >= 2 so the control uses "
                      "a genuinely different utterance")
 

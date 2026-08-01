@@ -65,13 +65,13 @@ def main():
     # stop token and runs to max_new_tokens, decoding straight past <|im_end|> into a
     # self-primed continuation loop. tok.eos_token_id is correct; generate() just never
     # consults it. Pass it explicitly or every chat generation is garbage after the turn.
-    eos_id = tok.convert_tokens_to_ids("<|im_end|>")
+    eos_ids = [tok.convert_tokens_to_ids(t) for t in ("<|im_end|>", "<|endoftext|>")]
 
     def gen(text):
         enc = tok(text, return_tensors="pt").to(device)
         with torch.no_grad():
             out = thinker.generate(**enc, max_new_tokens=args.max_new_tokens,
-                                   do_sample=False, eos_token_id=eos_id,
+                                   do_sample=False, eos_token_id=eos_ids,
                                    pad_token_id=tok.pad_token_id)
         return tok.decode(out[0][enc.input_ids.shape[1]:], skip_special_tokens=True)
 

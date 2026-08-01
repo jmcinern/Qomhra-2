@@ -9,7 +9,7 @@
 #          --mem=0 --time=03:00:00
 #
 #   # 2. Iterate against it (JOBID from salloc):
-#   JOBID=1234567 ./interactive.sh --config-name omni_speech optim.total_steps=20
+#   JOBID=1234567 ./interactive.sh --config-name omni_unit_ntp_100h optim.total_steps=20
 #
 #   # 3. Release when done:  scancel $JOBID
 set -euo pipefail
@@ -22,8 +22,8 @@ REPO_ROOT=/scratch/project_465002364/Qomhra-2
 CONTAINER_ROOT=/scratch/project_465002364/Qomhra
 TRAIN_DIR=${REPO_ROOT}/ablations/train
 OUTPUT_DIR=${TRAIN_DIR}/output
-SIF=${CONTAINER_ROOT}/Qomhra_v2.sif
-SQSH=${SQSH:-${REPO_ROOT}/full-train-est/train/qomhra-env.sqsh}
+SIF=${QOMHRA_SIF:-${CONTAINER_ROOT}/Qomhra_v2.sif}
+SQSH=${QOMHRA_SQSH:-${SQSH:-${REPO_ROOT}/full-train-est/train/qomhra-env.sqsh}}
 # Shared repo-level cache — holds the full 12G Omni snapshot. (ablations/train/hf_cache
 # is a tokenizer-only cache with no safetensors; from_pretrained fails against it.)
 export HF_HOME=${REPO_ROOT}/hf_cache
@@ -63,6 +63,7 @@ exec singularity exec \
     --env RANK="${SLURM_PROCID}" \
     --env LOCAL_RANK="${SLURM_LOCALID}" \
     --env WORLD_SIZE="${SLURM_NTASKS}" \
+    --env LOCAL_WORLD_SIZE=8 \
     --env MASTER_ADDR="${MASTER_ADDR}" \
     --env MASTER_PORT="${MASTER_PORT}" \
     --env NCCL_SOCKET_IFNAME="${NCCL_SOCKET_IFNAME}" \

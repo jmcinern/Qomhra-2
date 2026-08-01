@@ -1,6 +1,9 @@
-# Shared config for the ablation CPT runs. The three ablation configs
-# (omni_text / omni_speech / omni_both) compose this via `defaults` and set the
-# task/freeze/data blocks. See ../../README.md for the ablation definitions.
+# Shared config for the ablation CPT runs. The ablation configs compose this via
+# `defaults` and set the task/freeze/data blocks. See ../../README.md.
+#
+# The original omni_speech / omni_both / omni_aligned are superseded and now live
+# in legacy/ — see legacy/README.md. The task.audio_* and freeze blocks below only
+# apply to those; the discrete configs (omni_unit_*) ignore them.
 seed: 2137
 precision: bf16                     # FSDP param dtype = bf16 mixed precision
 
@@ -27,7 +30,6 @@ task:
   # Watch audio_target_var: it holds ~0.43 when the objective is doing real work.
   target_detach: frozen
   ema_decay: 0.999                 # only used when target_detach: ema
-  text_step_frac: 0.5              # 'both': fraction of global steps that are text
 
 freeze:
   mode: all                        # all | llm_only (Text ablation freezes the audio tower)
@@ -56,6 +58,8 @@ model:
 
 data:
   source: real                     # real (text) | audio | mixed | synthetic
+  epoch_start: 0.0                 # finite one-epoch slice
+  epoch_end: 1.0
   sep_id: 151643                   # Qwen2.5 <|endoftext|>
   # --- text ---
   # Omni-tokenized shards (NOT full-train-est/tokens — those are Qwen3-tokenized,
@@ -63,10 +67,8 @@ data:
   seq_len: 4096
   micro_batch_size: 1
   text_bin: ${paths.tokens}/shards/*.bin   # per-source globs in the ablation configs
-  # The Omni-tokenized corpus is 2.147B tokens (text/tokens_full/meta.json). A 400-step
-  # 2-node run consumes ~210M, so this budget caps how much of it we stream in — it is
-  # NOT the corpus size. Keep it above the run's consumption or the loader will wrap
-  # and repeat data.
+  # The full Omni-tokenized corpus. The finite loader derives its step count from the
+  # packed windows and never wraps silently.
   text_token_budget: 2147444837
   # --- audio ---
   audio_manifest: ${paths.audio}/manifest.tsv
@@ -81,13 +83,16 @@ optim:
   weight_decay: 0.1
   grad_clip: 1.0
   grad_acc: 8
-  total_steps: 400
-  warmup_steps: 20
+  epochs: 1
+  max_steps: null                  # only for explicit smoke/scale probes
+  warmup_steps: null
+  warmup_fraction: 0.05
   scheduler: cosine
   final_lr_frac: 0.1
 
 fsdp:
   forward_prefetch: true
+  wrap_policy: transformer
   # Multi-node defaults: hybrid_shard replicates across nodes and shards within one,
   # and bf16 grad-reduce halves the Slingshot all-reduce. On 1 node hybrid_shard is
   # equivalent to full_shard.
@@ -99,15 +104,19 @@ fsdp:
   transformer_layer_cls: [Qwen2_5OmniDecoderLayer, Qwen2_5OmniAudioEncoderLayer]
 
 checkpoint:
-  every_steps: 20                  # early signal: first before/after eval at step 20
+  at_fractions: [0.5, 0.9]         # 90% is ablation 4's required parent
   save_final: true
-  keep_last: 2
+  keep_last: 3
   dir: null                        # null -> <hydra run dir>/checkpoints
 
 logging:
   wandb: true
   wandb_project: qomhra-ablations
   wandb_run_name: null
+  # Set a stable per-ablation ID at launch. The 10% pilot and 10%->100%
+  # continuation then append to one W&B run on the same global-step axis.
+  wandb_run_id: null
+  wandb_resume: allow
   every_steps: 10
 
 profile:

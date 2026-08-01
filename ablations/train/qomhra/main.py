@@ -1,18 +1,24 @@
 """Entry point — FSDP continued-pretraining of the Qwen2.5-Omni Thinker.
 
-One launcher, three ablations (pick with Hydra):
+One launcher, several ablations (pick with Hydra):
     sbatch --nodes=2 train.sh --config-name omni_text
-    sbatch --nodes=2 train.sh --config-name omni_speech
-    sbatch --nodes=2 train.sh --config-name omni_both
+    sbatch --nodes=2 train.sh --config-name omni_unit_ntp_100h
+    sbatch --nodes=2 train.sh --config-name omni_unit_asr_250h
+
+The continuous-audio speech configs are superseded and live in
+configs/legacy/ — see configs/legacy/README.md.
 
 Launched one process per GCD by srun (see ../train.sh), which sets RANK /
 LOCAL_RANK / WORLD_SIZE / MASTER_ADDR / MASTER_PORT — the same wiring works
 unchanged across nodes, since RANK comes from the *global* SLURM_PROCID.
 """
 import functools
+import json
 import time
 
 import hydra
+import os
+from omegaconf import OmegaConf
 import torch
 import torch.nn as nn
 from accelerate import Accelerator, DataLoaderConfiguration, FullyShardedDataParallelPlugin
@@ -20,10 +26,17 @@ from torch.distributed.fsdp import BackwardPrefetch, MixedPrecision, ShardingStr
 from torch.distributed.fsdp.wrap import transformer_auto_wrap_policy
 from transformers import get_cosine_schedule_with_warmup
 
-from .data import ModalityScheduler, get_dataloader
+from .data import get_dataloader, get_validation_dataloaders
+from . import checkpoint as ckpt_utils
 from .logging_utils import Logger
 from .model import apply_freezing, get_model
-from .train_utils import train
+from .plan import ModalityScheduler, build_training_plan
+from .train_utils import evaluate_unit_ntp, train
+
+
+def root_only_auto_wrap_policy(module, recurse, nonwrapped_numel):
+    """Traverse the tree but never create a child FSDP unit."""
+    return bool(recurse)
 
 
 def resolve_layer_classes(model, override_names=None):
@@ -64,9 +77,22 @@ def resolve_layer_classes(model, override_names=None):
 
 
 def build_fsdp_plugin(args, layer_classes):
-    auto_wrap = functools.partial(
-        transformer_auto_wrap_policy, transformer_layer_cls=layer_classes,
-    )
+    wrap_policy = args.get("fsdp", {}).get("wrap_policy", "transformer")
+    if wrap_policy == "transformer":
+        auto_wrap = functools.partial(
+            transformer_auto_wrap_policy, transformer_layer_cls=layer_classes,
+        )
+    elif wrap_policy == "root":
+        # One FSDP unit trades a larger full-parameter residency window for far
+        # fewer collectives. This is useful when layer-wise HYBRID_SHARD is
+        # latency/launch-bound and the model still fits in HBM. Keep an explicit
+        # (non-wrapping) auto policy so FSDP constructs HYBRID_SHARD's node-local
+        # shard and inter-node replica process groups automatically.
+        auto_wrap = root_only_auto_wrap_policy
+    else:
+        raise ValueError(
+            f"unknown fsdp.wrap_policy={wrap_policy!r}; expected transformer or root"
+        )
     strategy = {
         "full_shard": ShardingStrategy.FULL_SHARD,
         "hybrid_shard": ShardingStrategy.HYBRID_SHARD,
@@ -92,9 +118,61 @@ def build_fsdp_plugin(args, layer_classes):
     )
 
 
+def validate_fsdp_topology(model, accelerator, args, logger):
+    """Verify HYBRID_SHARD means intra-node shards plus inter-node replicas."""
+    from torch.distributed import get_world_size
+    from torch.distributed.fsdp import FullyShardedDataParallel as FSDP
+
+    world = accelerator.num_processes
+    local = int(os.environ.get("LOCAL_WORLD_SIZE", min(world, 8)))
+    strategy = args.get("fsdp", {}).get("sharding_strategy", "full_shard")
+    roots = [m for m in model.modules() if isinstance(m, FSDP)]
+    if not roots:
+        if world == 1:
+            logger.log_message("[fsdp] single-process probe: model is intentionally unwrapped")
+            return
+        raise RuntimeError("Accelerate returned no FSDP wrapper")
+    root = roots[0]
+    shard_size = get_world_size(root.process_group)
+    inter_pg = getattr(root, "_inter_node_pg", None)
+    replica_size = get_world_size(inter_pg) if inter_pg is not None else 1
+    logger.log_message(
+        f"[fsdp] topology: strategy={strategy}, world={world}, local={local}, "
+        f"shard_group={shard_size}, replica_group={replica_size}"
+    )
+    if strategy == "hybrid_shard" and world > local:
+        expected_replicas = world // local
+        if shard_size != local or replica_size != expected_replicas:
+            raise RuntimeError(
+                "HYBRID_SHARD topology is not node-local: expected "
+                f"shard_group={local}, replica_group={expected_replicas}; got "
+                f"{shard_size} and {replica_size}"
+            )
+
+
 @hydra.main(config_path="configs", config_name="omni_text", version_base="1.1")
 def main(args):
     torch.manual_seed(args.seed)
+
+    resume_from = args.get("checkpoint", {}).get("resume_from", None)
+    step_offset = 0
+    if resume_from:
+        with open(os.path.join(resume_from, "meta.json"), encoding="utf-8") as handle:
+            resume_meta = json.load(handle)
+            step_offset = int(resume_meta["step"])
+        if not args.model.get("init_from", None):
+            OmegaConf.update(args, "model.init_from", resume_from, force_add=True)
+        if not args.logging.get("wandb_run_id", None):
+            run_id = resume_meta.get("wandb_run_id")
+            if run_id:
+                OmegaConf.update(
+                    args, "logging.wandb_run_id", run_id, force_add=True
+                )
+
+    if args.data.source == "continuation" and not args.model.get("init_from", None):
+        raise SystemExit(
+            "legacy/omni_aligned must set model.init_from to ablation 3's 90%-epoch checkpoint"
+        )
 
     # Build the model FIRST (on CPU) so we can resolve its layer classes for the
     # FSDP auto-wrap policy before constructing the Accelerator.
@@ -115,15 +193,31 @@ def main(args):
     logger = Logger(args, accelerator)
     logger.log_message(freeze_msg)
     logger.log_message(
-        f"[fsdp] wrapping layer classes: {sorted(c.__name__ for c in layer_classes)}"
+        f"[fsdp] wrap_policy={args.get('fsdp', {}).get('wrap_policy', 'transformer')} "
+        f"layer_classes={sorted(c.__name__ for c in layer_classes)}"
     )
 
-    dataloaders = get_dataloader(args, vocab)
-    modality_sched = None
-    if args.task.modality == "both":
-        modality_sched = ModalityScheduler(
-            args.optim.total_steps, args.task.text_step_frac, seed=args.seed
-        )
+    if float(args.optim.get("epochs", 1.0)) != 1.0:
+        raise ValueError("the corpus rig currently supports exactly optim.epochs=1")
+    dataloaders, capacities = get_dataloader(args, vocab)
+    validation_loaders = get_validation_dataloaders(args)
+    aligned_frac = (
+        args.task.get("aligned_step_frac", None)
+        if args.data.source == "continuation" else None
+    )
+    plan = build_training_plan(
+        capacities,
+        seed=args.seed,
+        aligned_step_frac=aligned_frac,
+        max_steps=args.optim.get("max_steps", None),
+    )
+    OmegaConf.update(
+        args, "optim.resolved_total_steps", plan.total_steps, force_add=True
+    )
+    OmegaConf.update(
+        args, "optim.resolved_step_counts", plan.step_counts, force_add=True
+    )
+    modality_sched = ModalityScheduler(plan.schedule)
 
     optimizer = torch.optim.AdamW(
         [p for p in model.parameters() if p.requires_grad],
@@ -138,32 +232,91 @@ def main(args):
     # logged lr jumped 1.5e-5 -> 3.8e-7 -> 2.2e-5 -> 2.7e-5 between steps instead of
     # decaying). Scaling the horizon by the world size cancels the multiplier exactly.
     world = max(accelerator.num_processes, 1)
+    selected_fraction = float(args.data.get("epoch_end", 1.0)) - float(
+        args.data.get("epoch_start", 0.0)
+    )
+    schedule_total_steps = int(args.optim.get("schedule_total_steps", 0) or 0)
+    if not schedule_total_steps:
+        if args.data.source in ("discrete_mixed", "discrete_mixed_asr"):
+            tokens_per_step = (
+                int(args.data.seq_len)
+                * int(args.data.micro_batch_size)
+                * int(args.optim.grad_acc)
+                * world
+            )
+            schedule_total_steps = int(args.data.token_budget) // tokens_per_step
+        else:
+            schedule_total_steps = int(round(plan.total_steps / selected_fraction))
+    OmegaConf.update(
+        args, "optim.resolved_full_total_steps", schedule_total_steps, force_add=True
+    )
+    warmup_steps = int(args.optim.get("warmup_steps", 0) or 0)
+    if not warmup_steps:
+        warmup_steps = max(1, int(round(
+            schedule_total_steps * float(args.optim.get("warmup_fraction", 0.05))
+        )))
     lr_scheduler = get_cosine_schedule_with_warmup(
         optimizer,
-        num_warmup_steps=args.optim.warmup_steps * world,
-        num_training_steps=args.optim.total_steps * world,
+        num_warmup_steps=warmup_steps * world,
+        num_training_steps=schedule_total_steps * world,
     )
 
-    prepared = accelerator.prepare(
-        model, optimizer, lr_scheduler, *dataloaders.values()
+    # Datasets already shard by global rank. Preparing the loaders would cause
+    # Accelerate to shard them a second time and silently train on only 1/world data.
+    model, optimizer, lr_scheduler = accelerator.prepare(
+        model, optimizer, lr_scheduler
     )
-    model, optimizer, lr_scheduler = prepared[:3]
-    dataloaders = dict(zip(dataloaders.keys(), prepared[3:]))
+    validate_fsdp_topology(model, accelerator, args, logger)
+    if resume_from:
+        ckpt_utils.load_training_state(
+            resume_from, accelerator, optimizer, lr_scheduler
+        )
+        logger.log_message(
+            f"[resume] model/optimizer/scheduler from {resume_from} at step {step_offset}"
+        )
 
     if args.model.get("compile", False):
         model = torch.compile(model)
 
-    global_batch = (
-        args.data.micro_batch_size * accelerator.num_processes * args.optim.grad_acc
+    local_batches = {
+        key: (
+            int(args.data.audio_micro_batch_size)
+            if key == "audio"
+            else int(args.data.get("aligned_micro_batch_size", 0) or 0)
+            if key == "aligned"
+            else int(args.data.micro_batch_size)
+        )
+        for key in dataloaders
+    }
+    global_batches = {
+        key: value * accelerator.num_processes * int(args.optim.grad_acc)
+        for key, value in local_batches.items() if key in dataloaders
+    }
+    logger.log_run_banner(
+        args, vocab, num_params, global_batches,
+        plan.total_steps, plan.step_counts,
     )
-    logger.log_run_banner(args, vocab, num_params, global_batch)
 
     t0 = time.time()
+    before_label = "resume" if step_offset else "base"
+    selected_epoch_end = float(args.data.get("epoch_end", 1.0))
+    after_label = "final" if selected_epoch_end >= 1.0 else "pilot"
+    for stream, validation_loader in validation_loaders.items():
+        evaluate_unit_ntp(
+            model, validation_loader, accelerator, args, logger,
+            label=f"{before_label}/{stream}", step=step_offset,
+        )
     train(model, dataloaders, accelerator, optimizer, lr_scheduler, args=args,
-          logger=logger, global_batch=global_batch, scheduler=modality_sched)
+          logger=logger, total_steps=plan.total_steps, scheduler=modality_sched,
+          step_offset=step_offset)
+    for stream, validation_loader in validation_loaders.items():
+        evaluate_unit_ntp(
+            model, validation_loader, accelerator, args, logger,
+            label=f"{after_label}/{stream}", step=step_offset + plan.total_steps,
+        )
     accelerator.wait_for_everyone()
     logger.log_message(f"TOTAL train time: {time.time() - t0:.1f}s "
-                       f"for {args.optim.total_steps} steps")
+                       f"for {plan.total_steps} steps")
     logger.finish()
 
 

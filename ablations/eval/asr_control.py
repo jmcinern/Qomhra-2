@@ -61,7 +61,7 @@ def main():
     ).to(device).eval()
     proc = Qwen2_5OmniProcessor.from_pretrained(args.model)
     tok = proc.tokenizer
-    eos_id = tok.convert_tokens_to_ids("<|im_end|>")
+    eos_ids = [tok.convert_tokens_to_ids(t) for t in ("<|im_end|>", "<|endoftext|>")]
     print("[load] OK\n", flush=True)
 
     for lang, fname, ref in CLIPS:
@@ -76,7 +76,7 @@ def main():
                       return_tensors="pt", padding=True).to(device)
         with torch.no_grad():
             out = thinker.generate(**inputs, max_new_tokens=100, do_sample=False,
-                                   eos_token_id=eos_id, pad_token_id=tok.pad_token_id)
+                                   eos_token_id=eos_ids, pad_token_id=tok.pad_token_id)
         raw = tok.decode(out[0][inputs["input_ids"].shape[1]:], skip_special_tokens=True)
         cleaned = strip_boilerplate(raw)
         e_raw, n = wer(ref, raw)

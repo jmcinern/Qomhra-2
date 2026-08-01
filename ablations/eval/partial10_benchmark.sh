@@ -23,6 +23,8 @@ BENCHMARK=${2:?cluas or iwslt}
 # 1.25; the numbers that became `*_numbers_final.csv` were a 2.5 rerun done by hand,
 # with no script behind it. Parameterised so that rerun is reproducible, and so any
 # new arm can be generated at the same budget as the results it is compared against.
+NQ=${NQ:-33}
+NU=${NU:-112}
 MULT=${MULT:-1.25}
 TAG=${TAG:-}
 
@@ -82,7 +84,7 @@ case "${BENCHMARK}" in
       --data "${EVAL}/data/cluas_all.parquet" \
       --units "${EVAL}/data/cluas_all.units.parquet" \
       --checkpoint "${CKPT}" --label "${ARM}_p10${TAG}" \
-      --n-questions 33 --selection-seed 2137 \
+      --n-questions "${NQ}" --selection-seed 2137 \
       --seq-len 1024 --max-new-tokens 128 \
       --reference-budget-multiplier "${MULT}" --min-new-tokens 8 \
       --conditions just_audio no_context just_transcript \
@@ -97,7 +99,7 @@ case "${BENCHMARK}" in
       --data "${EVAL}/data/iwslt2023_dev.parquet" \
       --units "${EVAL}/data/iwslt2023_dev.units.parquet" \
       --checkpoint "${CKPT}" --label "${ARM}_p10${TAG}" \
-      --n 112 --selection-seed 2137 \
+      --n "${NU}" --selection-seed 2137 \
       --max-new-tokens 128 \
       --reference-budget-multiplier "${MULT}" --min-new-tokens 8 \
       --task-cue instructed \

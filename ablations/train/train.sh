@@ -7,7 +7,7 @@
 #SBATCH --cpus-per-task=7
 #SBATCH --gpus-per-node=8
 #SBATCH --mem=0
-#SBATCH --time=01:00:00
+#SBATCH --time=2-00:00:00
 #SBATCH --output=output/slurm_%j.log
 set -euo pipefail
 
@@ -16,8 +16,8 @@ set -euo pipefail
 #
 # Pick the ablation with Hydra, and the node count with sbatch:
 #   sbatch --nodes=2 train.sh --config-name omni_text
-#   sbatch --nodes=2 train.sh --config-name omni_speech
-#   sbatch --nodes=2 train.sh --config-name omni_both
+#   sbatch --nodes=2 train.sh --config-name omni_unit_ntp_100h
+#   sbatch --nodes=2 train.sh --config-name omni_unit_asr_250h
 #
 # Multi-node needs no code change: --ntasks-per-node stays at 8 (one rank per GCD),
 # so WORLD_SIZE = SLURM_NTASKS = 8 x nodes and RANK = the *global* SLURM_PROCID.
@@ -33,10 +33,14 @@ REPO_ROOT=/scratch/project_465002364/Qomhra-2          # Qomhra-2 git repo (this
 CONTAINER_ROOT=/scratch/project_465002364/Qomhra       # shared container/envs from Qomhra
 TRAIN_DIR=${REPO_ROOT}/ablations/train
 OUTPUT_DIR=${TRAIN_DIR}/output
-SIF=${CONTAINER_ROOT}/Qomhra_v2.sif
+# Qomhra_v2 is retained as the compatibility default. For multi-node runs use
+# QOMHRA_SIF to select a LUMI multitorch image containing a working Libfabric/
+# aws-ofi-rccl stack; the legacy image falls back to NET/Socket because its
+# librccl-net dependency requires a libfabric newer than its glibc can load.
+SIF=${QOMHRA_SIF:-${CONTAINER_ROOT}/Qomhra_v2.sif}
 # The python env squashfs is shared with the full-train-est rig (same container,
 # same deps) — don't duplicate a 2nd copy of it on scratch.
-SQSH=${SQSH:-${REPO_ROOT}/full-train-est/train/qomhra-env.sqsh}
+SQSH=${QOMHRA_SQSH:-${SQSH:-${REPO_ROOT}/full-train-est/train/qomhra-env.sqsh}}
 # Shared repo-level cache — holds the full 12G Omni snapshot. (ablations/train/hf_cache
 # is a tokenizer-only cache with no safetensors; from_pretrained fails against it.)
 export HF_HOME=${REPO_ROOT}/hf_cache
@@ -84,6 +88,7 @@ exec singularity exec \
     --env RANK="${SLURM_PROCID}" \
     --env LOCAL_RANK="${SLURM_LOCALID}" \
     --env WORLD_SIZE="${SLURM_NTASKS}" \
+    --env LOCAL_WORLD_SIZE=8 \
     --env MASTER_ADDR="${MASTER_ADDR}" \
     --env MASTER_PORT="${MASTER_PORT}" \
     --env NCCL_SOCKET_IFNAME="${NCCL_SOCKET_IFNAME}" \

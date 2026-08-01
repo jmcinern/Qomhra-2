@@ -22,7 +22,7 @@ tower out -> decoder hidden -> pred -> loss) so the NaN's origin is named, not g
 
 Usage (inside an allocation; see probe.sh):
     python _probe_steps.py --mode train --steps 30 optim.lr=3e-5
-Any trailing args are Hydra overrides on the omni_speech config.
+Any trailing args are Hydra overrides on the legacy/omni_speech config.
 """
 import argparse
 import os
@@ -107,7 +107,7 @@ def main():
 
     with initialize_config_dir(config_dir=os.path.join(HERE, "qomhra", "configs"),
                                version_base=None):
-        cfg = compose(config_name="omni_speech", overrides=overrides)
+        cfg = compose(config_name="legacy/omni_speech", overrides=overrides)
 
     # No FSDP, no accelerate. Params stay fp32 and compute runs under bf16 autocast —
     # the same arithmetic FSDP's MixedPrecision(param_dtype=bf16) gives each rank,

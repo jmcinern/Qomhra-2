@@ -1,3 +1,6 @@
+# @package _global_
+# ^ required: this config sits in a subdirectory, and without it Hydra would
+#   namespace every key under `legacy.` instead of the top level.
 # Ablation 2 — "Just Speech": audio only, train everything.
 #
 # Speech goes through Omni's native audio path (mel -> audio_tower -> 2048-d @ 25 Hz),
@@ -5,7 +8,9 @@
 # output (see model.py). The whole stack trains: audio encoder + adapter + LLM +
 # lm_head + the regression head.
 defaults:
-  - base
+  # Absolute (leading /): this config now lives in legacy/, and a bare `base`
+  # would resolve to legacy/base.yaml, which does not exist.
+  - /base
   - _self_
 
 model:

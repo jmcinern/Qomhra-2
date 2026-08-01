@@ -15,7 +15,7 @@ from torch.distributed.fsdp import FullStateDictConfig, StateDictType
 from omegaconf import OmegaConf
 
 
-def save(model, accelerator, args, step, ckpt_dir):
+def save(model, accelerator, args, step, ckpt_dir, optimizer=None, lr_scheduler=None):
     """Gather FULL_STATE_DICT on rank 0 and write {ckpt_dir}/step_{step}/.
 
     Every rank must enter the gather (it is a collective), but only rank 0 writes.
@@ -32,10 +32,45 @@ def save(model, accelerator, args, step, ckpt_dir):
         torch.save(state, os.path.join(out, "pytorch_model.bin"))
         OmegaConf.save(args, os.path.join(out, "config.yaml"))
         with open(os.path.join(out, "meta.json"), "w") as f:
-            json.dump({"step": step, "base_model_id": args.model.base_model_id}, f)
+            total = int(args.optim.get("resolved_full_total_steps", step))
+            json.dump({
+                "step": step,
+                "total_steps": total,
+                "epoch_progress": step / total,
+                "base_model_id": args.model.base_model_id,
+                "wandb_run_id": args.logging.get("wandb_run_id", None),
+            }, f)
     del state
     accelerator.wait_for_everyone()
+    if bool(args.get("checkpoint", {}).get("save_training_state", False)):
+        if optimizer is None or lr_scheduler is None:
+            raise RuntimeError("save_training_state requires optimizer and lr_scheduler")
+        rank = int(accelerator.process_index)
+        torch.save(
+            {
+                "optimizer": optimizer.state_dict(),
+                "lr_scheduler": lr_scheduler.state_dict(),
+                "torch_rng": torch.get_rng_state(),
+                "cuda_rng": torch.cuda.get_rng_state(),
+            },
+            os.path.join(out, f"training_state_rank_{rank:05d}.pt"),
+        )
+        accelerator.wait_for_everyone()
     return out
+
+
+def load_training_state(path, accelerator, optimizer, lr_scheduler):
+    """Restore the same-world-size sharded optimizer/scheduler state."""
+    rank = int(accelerator.process_index)
+    state_path = os.path.join(path, f"training_state_rank_{rank:05d}.pt")
+    if not os.path.isfile(state_path):
+        raise RuntimeError(f"resume checkpoint lacks {state_path}")
+    state = torch.load(state_path, map_location="cpu", weights_only=False)
+    optimizer.load_state_dict(state["optimizer"])
+    lr_scheduler.load_state_dict(state["lr_scheduler"])
+    torch.set_rng_state(state["torch_rng"])
+    torch.cuda.set_rng_state(state["cuda_rng"])
+    accelerator.wait_for_everyone()
 
 
 def prune(ckpt_dir, keep_last):
